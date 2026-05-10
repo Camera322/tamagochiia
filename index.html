@@ -1,0 +1,1341 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Тамагочи-ИИ ✦ Мега-Магазин, Достижения, Уровни</title>
+  <style>
+    /* ВСЕ СТИЛИ ОСТАЮТСЯ БЕЗ ИЗМЕНЕНИЙ */
+    :root {
+        --bg: #1a1a2e;
+        --card: #16213e;
+        --accent: #e94560;
+        --text: #eee;
+        --gold: #ffd700;
+        --level: #a18cd1;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        background: var(--bg);
+        font-family: 'Segoe UI', 'Courier New', monospace;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        transition: background 0.8s ease;
+        user-select: none;
+        overflow-x: hidden;
+        position: relative;
+    }
+    .dvd-cube {
+        position: fixed; top: 0; left: 0; width: 50px; height: 50px;
+        background: #ff6b9d; border-radius: 8px; z-index: 50;
+        pointer-events: none; box-shadow: 0 0 20px rgba(255,107,157,0.7);
+        transition: background 0.3s; display: none;
+    }
+    .dvd-cube.active { display: block; }
+    .sound-toy-btn {
+        position: fixed; bottom: 25px; left: 25px; width: 55px; height: 55px;
+        background: rgba(255,215,0,0.25); border: 2px solid rgba(255,215,0,0.7);
+        border-radius: 50%; font-size: 2rem; display: none; align-items: center;
+        justify-content: center; cursor: pointer; z-index: 60;
+        backdrop-filter: blur(8px); box-shadow: 0 4px 25px rgba(255,215,0,0.3);
+        transition: transform 0.2s, box-shadow 0.2s; animation: floatToy 3s ease-in-out infinite;
+    }
+    .sound-toy-btn.active { display: flex; }
+    .sound-toy-btn:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(255,215,0,0.5); }
+    .sound-toy-btn:active { transform: scale(0.9); }
+    @keyframes floatToy { 0%,100%{ transform: translateY(0); } 50%{ transform: translateY(-6px); } }
+    .level-panel {
+        position: fixed; right: 25px; top: 50%; transform: translateY(-50%);
+        background: rgba(22, 33, 62, 0.95); border: 2px solid rgba(161, 136, 255, 0.5);
+        border-radius: 20px; padding: 16px; width: 260px; z-index: 55;
+        backdrop-filter: blur(12px); box-shadow: 0 10px 40px rgba(161,136,255,0.25);
+        display: flex; flex-direction: column; gap: 10px;
+        transition: transform 0.3s, opacity 0.3s;
+    }
+    .level-panel:hover { transform: translateY(-50%) scale(1.02); }
+    .level-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .level-badge {
+        background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: #1a1a2e;
+        font-weight: bold; padding: 6px 14px; border-radius: 20px; font-size: 1.1rem;
+        letter-spacing: 2px; box-shadow: 0 4px 15px rgba(161,136,255,0.5);
+    }
+    .level-progress-bar { width: 100%; height: 10px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; margin: 4px 0; }
+    .level-progress-fill {
+        height: 100%; background: linear-gradient(90deg, #a18cd1, #fbc2eb);
+        border-radius: 10px; transition: width 0.5s ease; box-shadow: 0 0 12px rgba(161,136,255,0.6);
+    }
+    .level-task {
+        background: rgba(161,136,255,0.1); border: 1px solid rgba(161,136,255,0.3);
+        border-radius: 14px; padding: 10px; font-size: 0.75rem; color: rgba(255,255,255,0.9);
+        letter-spacing: 0.5px; line-height: 1.4;
+    }
+    .level-task strong { color: #fbc2eb; display: block; margin-bottom: 4px; font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase; }
+    .level-task .task-progress { font-size: 0.85rem; color: #ffd700; font-weight: bold; margin-top: 4px; }
+    .level-reward { font-size: 0.7rem; color: #6bcb77; text-align: center; font-weight: bold; letter-spacing: 1px; }
+    @media(max-width:700px) { .level-panel { right: 5px; width: 220px; padding: 10px; font-size: 0.7rem; } }
+    .container { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 20px; max-width: 500px; width: 100%; }
+    @media(max-width:700px) { .container { margin-right: 230px; } }
+    .pet-card {
+        background: var(--card); border-radius: 28px; padding: 28px 22px 22px;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.08); width: 100%; text-align: center;
+        position: relative; transition: background 0.5s, filter 0.5s;
+    }
+    .pet-card.dead { filter: grayscale(0.8) brightness(0.5); pointer-events: none; }
+    .pet-card.dead #btnRestart { pointer-events: all; filter: none; }
+    .lang-btn {
+        position: absolute; top: 12px; right: 16px;
+        background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.2);
+        color: var(--text); font-size: 0.65rem; font-weight: bold; padding: 4px 10px;
+        border-radius: 14px; cursor: pointer; z-index: 15; letter-spacing: 1px;
+        transition: all 0.2s; opacity: 0.7;
+    }
+    .lang-btn:hover { opacity: 1; background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); }
+    .pet-name { font-size: 1.8rem; font-weight: bold; color: var(--text); margin-bottom: 3px; letter-spacing: 2px; text-shadow: 0 0 20px var(--accent); }
+    .pet-title { font-size: 0.7rem; color: rgba(255,255,255,0.45); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 8px; }
+    .coins-section { display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+    .coins-display {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,215,0,0.1); border: 1px solid rgba(255,215,0,0.3);
+        border-radius: 30px; padding: 6px 16px; font-size: 0.85rem; font-weight: bold;
+        color: var(--gold); letter-spacing: 1px; animation: coinGlow 2s ease-in-out infinite;
+    }
+    @keyframes coinGlow { 0%,100%{box-shadow: 0 0 8px rgba(255,215,0,0.2);} 50%{box-shadow: 0 0 18px rgba(255,215,0,0.5);} }
+    .coins-display .coin-icon { font-size: 1.3rem; }
+    .coin-timer {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 30px; padding: 6px 14px; font-size: 0.75rem; color: rgba(255,255,255,0.7); letter-spacing: 1px;
+    }
+    .coin-timer .timer-value { font-weight: bold; color: var(--gold); min-width: 42px; text-align: center; }
+    .food-counter {
+        display: inline-flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 30px; padding: 6px 16px; margin-bottom: 10px; font-size: 0.85rem;
+        color: rgba(255,255,255,0.8); letter-spacing: 1px;
+    }
+    .food-counter .count { font-weight: bold; color: #ffc93c; font-size: 1.1rem; min-width: 20px; text-align: center; }
+    .rename-btn { font-size: 0.65rem; color: var(--gold); background: none; border: none; cursor: pointer; opacity: 0.7; transition: opacity 0.2s; margin-left: 4px; vertical-align: middle; }
+    .rename-btn:hover { opacity: 1; }
+    .achievements-btn {
+        position: fixed; bottom: 25px; right: 25px; width: 55px; height: 55px;
+        background: rgba(255,215,0,0.25); border: 2px solid rgba(255,215,0,0.7);
+        border-radius: 50%; font-size: 1.8rem; display: flex; align-items: center;
+        justify-content: center; cursor: pointer; z-index: 70; backdrop-filter: blur(8px);
+        box-shadow: 0 4px 25px rgba(255,215,0,0.3); transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .achievements-btn:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(255,215,0,0.5); }
+    .achievements-btn:active { transform: scale(0.9); }
+    .pet-stage { width: 170px; height: 170px; margin: 0 auto 12px; position: relative; overflow: visible; }
+    .pet {
+        width: 95px; height: 95px; background: #ff6b9d; border-radius: 50%;
+        position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+        box-shadow: 0 8px 28px rgba(255,107,157,0.45), inset 0 -14px 18px rgba(0,0,0,0.2), inset 0 8px 18px rgba(255,255,255,0.2);
+        transition: all 0.35s; animation: float 3s ease-in-out infinite; overflow: visible;
+    }
+    .pet::before, .pet::after { content: ''; position: absolute; background: #fff; border-radius: 50%; width: 13px; height: 17px; top: 33px; box-shadow: inset 0 3px 5px rgba(0,0,0,0.3); transition: all 0.2s; z-index: 5; }
+    .pet::before { left: 24px; } .pet::after { right: 24px; }
+    .pet .pupil { position: absolute; width: 6px; height: 8px; background: #111; border-radius: 50%; top: 36px; z-index: 6; }
+    .pet .pupil.left { left: 29px; } .pet .pupil.right { right: 29px; }
+    .pet .mouth { position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%); width: 18px; height: 9px; border-bottom: 3px solid #4a1530; border-radius: 0 0 50% 50%; transition: all 0.3s; z-index: 5; }
+    .pet-hat { position: absolute; font-size: 2rem; z-index: 10; pointer-events: none; transition: all 0.3s; }
+    .pet-effects { position: absolute; width: 110px; height: 110px; bottom: 12px; left: 50%; transform: translateX(-50%); pointer-events: none; z-index: 15; }
+    .effect-star { position: absolute; animation: twinkle 3s ease-in-out infinite; font-size: 1rem; }
+    .effect-heart { position: absolute; animation: floatUp 3s ease-in-out infinite; font-size: 0.9rem; }
+    @keyframes twinkle { 0%,100% { opacity: 0.2; transform: scale(0.7); } 50% { opacity: 0.8; transform: scale(1.1); } }
+    @keyframes floatUp { 0% { transform: translateY(0) scale(1); opacity: 0; } 30% { opacity: 0.8; } 100% { transform: translateY(-40px) scale(0.4); opacity: 0; } }
+    @keyframes float { 0%,100%{transform:translateX(-50%) translateY(0);} 50%{transform:translateX(-50%) translateY(-7px);} }
+    .pet.happy { background:#ff85aa; box-shadow:0 8px 32px rgba(255,133,170,0.65),inset 0 -14px 18px rgba(0,0,0,0.2); }
+    .pet.happy .mouth { width:24px; height:13px; border-bottom-width:4px; border-radius:0 0 60% 60%; }
+    .pet.sad { background:#9b7bb5; box-shadow:0 8px 22px rgba(155,123,181,0.45),inset 0 -14px 18px rgba(0,0,0,0.2); animation:float 5s ease-in-out infinite; }
+    .pet.sad .mouth { width:13px; border-bottom:none; border-top:3px solid #4a1530; border-radius:50% 50% 0 0; bottom:22px; }
+    .pet.angry { background:#e94560; box-shadow:0 8px 32px rgba(233,69,96,0.65),inset 0 -14px 18px rgba(0,0,0,0.2); animation:shake 0.4s ease-in-out infinite; }
+    .pet.angry .mouth { width:7px; height:7px; background:#4a1530; border-radius:50%; border-bottom:none; bottom:24px; }
+    .pet.dead-pet { background: #3a3a4a !important; box-shadow: 0 4px 10px rgba(0,0,0,0.5), inset 0 -8px 12px rgba(0,0,0,0.3) !important; animation: none !important; }
+    .pet.dead-pet::before, .pet.dead-pet::after { content: '✖'; background: none !important; color: #666; font-size: 1.2rem; font-weight: bold; box-shadow: none !important; width: auto; height: auto; top: 30px; }
+    .pet.dead-pet .pupil { display: none; }
+    .pet.dead-pet .mouth { width: 20px; height: 3px; background: #555; border: none; border-radius: 2px; bottom: 26px; }
+    @keyframes shake { 0%,100%{transform:translateX(-50%) rotate(0);} 25%{transform:translateX(-50%) rotate(-3deg);} 75%{transform:translateX(-50%) rotate(3deg);} }
+    .stats { display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin:8px 0; }
+    .stat { display:flex; flex-direction:column; align-items:center; gap:3px; }
+    .stat-label { font-size:0.55rem; letter-spacing:2px; color:rgba(255,255,255,0.55); text-transform:uppercase; }
+    .stat-bar { width:75px; height:7px; background:rgba(255,255,255,0.08); border-radius:10px; overflow:hidden; }
+    .stat-fill { height:100%; border-radius:10px; transition:width 0.5s,background 0.5s; }
+    .stat-fill.hunger { background:linear-gradient(90deg,#f07b3f,#ffc93c); }
+    .stat-fill.happy { background:linear-gradient(90deg,#6bcb77,#a8e6cf); }
+    .stat-fill.energy { background:linear-gradient(90deg,#4d96ff,#9be3ff); }
+    .stat-value { font-size:0.65rem; color:rgba(255,255,255,0.75); font-weight:bold; }
+    .warning-msg { color: #ff9f43; font-size: 0.7rem; letter-spacing: 1px; margin: 4px 0; min-height: 18px; animation: pulse 1.5s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{opacity:0.6;} 50%{opacity:1;} }
+    .actions { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:8px 0; }
+    .btn {
+        background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.14); color:var(--text);
+        padding:9px 16px; border-radius:28px; cursor:pointer; font-size:0.8rem; letter-spacing:1px;
+        transition:all 0.3s; position:relative; overflow:hidden;
+    }
+    .btn:hover:not(.on-cooldown):not(:disabled) { background:rgba(255,255,255,0.11); border-color:rgba(255,255,255,0.3); box-shadow:0 4px 18px rgba(0,0,0,0.3); transform:translateY(-2px); }
+    .btn:active:not(.on-cooldown):not(:disabled) { transform:scale(0.94); }
+    .btn:disabled { opacity:0.35; cursor:not-allowed; filter:grayscale(0.8); pointer-events:none; }
+    .btn.on-cooldown { opacity:0.45; cursor:not-allowed; filter:grayscale(0.6); pointer-events:none; }
+    .btn .cooldown-timer { position:absolute; bottom:0; left:0; height:3px; background:rgba(255,255,255,0.5); border-radius:0 0 28px 28px; transition:width 1s linear; }
+    .btn.primary { background:var(--accent); border-color:var(--accent); font-weight:bold; animation:glowPulse 2s infinite; }
+    .btn.primary:hover:not(:disabled) { background:#ff5277; box-shadow:0 4px 22px rgba(233,69,96,0.5); }
+    .btn.get-food { background:rgba(255,193,60,0.2); border-color:rgba(255,193,60,0.5); color:#ffc93c; font-weight:bold; }
+    .btn.get-food:hover:not(:disabled) { background:rgba(255,193,60,0.3); box-shadow:0 4px 20px rgba(255,193,60,0.3); }
+    .btn.casino-btn { background:rgba(255,215,0,0.15); border-color:rgba(255,215,0,0.4); color:var(--gold); font-weight:bold; }
+    .btn.casino-btn:hover:not(:disabled) { background:rgba(255,215,0,0.25); box-shadow:0 4px 20px rgba(255,215,0,0.4); }
+    .btn.buy-food-btn { background:rgba(107,203,119,0.2); border-color:rgba(107,203,119,0.4); color:#6bcb77; font-weight:bold; }
+    .btn.restart-btn { background:rgba(255,255,255,0.1); border-color:rgba(255,255,255,0.3); color:#fff; font-weight:bold; font-size:0.9rem; animation:glowPulse 1.5s infinite; }
+    .btn.rename-pet-btn { background:rgba(255,215,0,0.1); border-color:rgba(255,215,0,0.3); color:var(--gold); font-weight:bold; font-size:0.7rem; }
+    .btn.admin-btn { background:rgba(255,0,0,0.2); border-color:rgba(255,0,0,0.5); color:#ff6b6b; font-weight:bold; }
+    .btn.admin-green { background:rgba(0,255,0,0.15); border-color:rgba(0,255,0,0.4); color:#6bcb77; font-weight:bold; }
+    .btn.shop-btn { background:rgba(161,136,255,0.25); border-color:rgba(161,136,255,0.6); color:#c4b5fd; font-weight:bold; }
+    @keyframes glowPulse { 0%,100%{box-shadow:0 0 8px rgba(233,69,96,0.4);} 50%{box-shadow:0 0 22px rgba(233,69,96,0.7);} }
+    .speech-bubble {
+        position:absolute; top:-42px; left:50%; transform:translateX(-50%);
+        background:rgba(255,255,255,0.93); color:#1a1a2e; padding:7px 15px; border-radius:20px;
+        font-size:0.78rem; font-weight:bold; white-space:nowrap; opacity:0; pointer-events:none;
+        transition:opacity 0.3s; z-index:20; letter-spacing:1px; max-width:260px; text-align:center;
+    }
+    .speech-bubble::after { content:''; position:absolute; bottom:-7px; left:50%; transform:translateX(-50%); border-left:7px solid transparent; border-right:7px solid transparent; border-top:7px solid rgba(255,255,255,0.93); }
+    .speech-bubble.show { opacity:1; }
+    .modal-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.82); backdrop-filter:blur(6px); display:flex; justify-content:center; align-items:center; z-index:100; opacity:0; pointer-events:none; transition:opacity 0.3s; }
+    .modal-overlay.active { opacity:1; pointer-events:all; }
+    .modal { background:var(--card); border-radius:24px; padding:28px; text-align:center; border:1px solid rgba(255,255,255,0.1); box-shadow:0 30px 60px rgba(0,0,0,0.6); max-width:420px; width:90%; max-height:90vh; overflow-y:auto; }
+    .modal h2 { color:var(--text); margin-bottom:4px; letter-spacing:2px; font-size:1.4rem; }
+    .modal .subtitle { font-size:0.7rem; color:rgba(255,255,255,0.5); margin-bottom:16px; letter-spacing:2px; }
+    .board { display:grid; grid-template-columns:repeat(3,1fr); gap:7px; width:210px; margin:0 auto 12px; }
+    .cell { aspect-ratio:1; background:rgba(255,255,255,0.03); border:2px solid rgba(255,255,255,0.13); border-radius:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:2.4rem; font-weight:bold; color:var(--text); transition:all 0.2s; }
+    .cell:hover:not(.taken) { background:rgba(255,255,255,0.08); border-color:var(--accent); box-shadow:0 0 18px rgba(233,69,96,0.3); }
+    .cell.taken { cursor:not-allowed; }
+    .cell.win { background:rgba(107,203,119,0.2); border-color:#6bcb77; animation:winCell 0.6s ease-in-out infinite alternate; }
+    @keyframes winCell { from{box-shadow:0 0 8px rgba(107,203,119,0.4);} to{box-shadow:0 0 26px rgba(107,203,119,0.8);} }
+    .game-status { color:var(--text); font-size:0.85rem; margin:8px 0; min-height:22px; letter-spacing:1px; }
+    .scoreboard { display:flex; justify-content:center; align-items:center; gap:18px; margin:6px 0 4px; font-size:0.75rem; color:rgba(255,255,255,0.7); letter-spacing:1px; flex-wrap:wrap; }
+    .score-item { display:flex; flex-direction:column; align-items:center; gap:2px; }
+    .score-value { font-size:1.3rem; font-weight:bold; color:var(--text); }
+    .score-value.wins { color:#6bcb77; } .score-value.losses { color:#e94560; } .score-value.draws { color:#ffc93c; }
+    .score-label { font-size:0.55rem; text-transform:uppercase; color:rgba(255,255,255,0.45); letter-spacing:2px; }
+    .streak-badge { background:linear-gradient(135deg,#f07b3f,#e94560); color:#fff; padding:3px 10px; border-radius:14px; font-size:0.7rem; font-weight:bold; letter-spacing:1px; animation:glowPulse 1.5s infinite; display:inline-block; }
+    .streak-badge.hidden { display:none; } .streak-badge.cold { background:linear-gradient(135deg,#4d96ff,#6bcb77); }
+    .color-picker-row { display:flex; gap:7px; justify-content:center; flex-wrap:wrap; margin:8px 0; }
+    .color-dot { width:30px; height:30px; border-radius:50%; cursor:pointer; border:2px solid rgba(255,255,255,0.25); transition:all 0.2s; box-shadow:0 3px 8px rgba(0,0,0,0.3); }
+    .color-dot:hover { transform:scale(1.2); border-color:#fff; }
+    .color-dot.selected { border-color:#fff; box-shadow:0 0 20px rgba(255,255,255,0.6); transform:scale(1.15); }
+    .btn-row { display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:8px; }
+    .math-example { font-size:2rem; font-weight:bold; color:var(--text); letter-spacing:3px; margin:12px 0; }
+    .math-input { background:rgba(255,255,255,0.06); border:2px solid rgba(255,255,255,0.2); color:var(--text); font-size:1.5rem; padding:10px 18px; border-radius:14px; text-align:center; width:120px; letter-spacing:2px; outline:none; }
+    .math-input:focus { border-color:var(--accent); box-shadow:0 0 20px rgba(233,69,96,0.4); }
+    .math-feedback { min-height:20px; font-size:0.85rem; margin:6px 0; letter-spacing:1px; }
+    .slot-machine { display:flex; gap:12px; justify-content:center; align-items:center; margin:16px 0; }
+    .slot-reel { width:80px; height:100px; background:linear-gradient(180deg,#0a0a15 0%,#1a1a30 50%,#0a0a15 100%); border:2px solid rgba(255,215,0,0.4); border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:3rem; font-weight:bold; color:var(--gold); text-shadow:0 0 20px rgba(255,215,0,0.6); position:relative; overflow:hidden; box-shadow:inset 0 0 20px rgba(0,0,0,0.5); }
+    .slot-reel.spinning { animation:slotSpin 0.12s linear infinite; }
+    @keyframes slotSpin { 0%{transform:translateY(-8px);} 50%{transform:translateY(8px);} 100%{transform:translateY(-8px);} }
+    .slot-reel.win-glow { border-color:#6bcb77; box-shadow:0 0 30px rgba(107,203,119,0.7),inset 0 0 20px rgba(0,0,0,0.5); animation:winReel 0.5s ease-in-out 3; }
+    @keyframes winReel { 0%,100%{transform:scale(1);} 50%{transform:scale(1.08);} }
+    .slot-result { font-size:1.1rem; font-weight:bold; letter-spacing:2px; min-height:28px; margin:6px 0; }
+    .slot-cost { color:var(--gold); font-size:0.75rem; margin-bottom:8px; letter-spacing:1px; }
+    .admin-badge { display:inline-block; background:linear-gradient(135deg,#ff0000,#ff6b6b); color:#fff; font-size:0.65rem; font-weight:bold; padding:3px 10px; border-radius:12px; letter-spacing:2px; margin-bottom:6px; animation:adminPulse 1s infinite; }
+    @keyframes adminPulse { 0%,100%{box-shadow:0 0 8px rgba(255,0,0,0.5);} 50%{box-shadow:0 0 20px rgba(255,0,0,0.8);} }
+    .admin-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+    .admin-speak-row { display:flex; gap:8px; margin-top:12px; align-items:center; }
+    .admin-speak-input { flex:1; background:rgba(255,255,255,0.06); border:2px solid rgba(255,100,100,0.4); color:var(--text); padding:10px 14px; border-radius:14px; font-size:0.85rem; outline:none; }
+    .admin-level-row { display:flex; gap:8px; align-items:center; margin:8px 0; }
+    .admin-level-input { width:80px; background:rgba(255,255,255,0.06); border:2px solid rgba(161,136,255,0.4); color:var(--text); padding:8px 12px; border-radius:14px; font-size:0.85rem; text-align:center; outline:none; }
+    .admin-coins-row { display:flex; gap:8px; align-items:center; margin:8px 0; }
+    .admin-coins-input { width:80px; background:rgba(255,255,255,0.06); border:2px solid rgba(255,215,0,0.4); color:var(--text); padding:8px 12px; border-radius:14px; font-size:0.85rem; text-align:center; outline:none; }
+    .shop-tabs { display:flex; gap:6px; justify-content:center; flex-wrap:wrap; margin-bottom:12px; }
+    .shop-tab { background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.12); color:rgba(255,255,255,0.6); padding:8px 14px; border-radius:20px; cursor:pointer; font-size:0.7rem; letter-spacing:1px; transition:all 0.2s; }
+    .shop-tab:hover { background:rgba(255,255,255,0.08); color:#fff; }
+    .shop-tab.active { background:rgba(161,136,255,0.2); border-color:rgba(161,136,255,0.5); color:#c4b5fd; font-weight:bold; }
+    .shop-item { display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border-radius:16px; padding:14px 18px; margin:10px 0; border:1px solid rgba(255,255,255,0.08); }
+    .shop-item-info { text-align:left; }
+    .shop-item-name { color:var(--text); font-weight:bold; letter-spacing:1px; }
+    .shop-item-desc { font-size:0.65rem; color:rgba(255,255,255,0.5); margin-top:2px; }
+    .shop-item-price { font-size:0.7rem; color:var(--gold); margin-top:2px; }
+    .level-up-effect {
+        position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0);
+        font-size: 4rem; z-index: 200; pointer-events: none;
+        animation: levelUpPop 2s ease-out forwards; text-shadow: 0 0 40px rgba(161,136,255,0.8);
+    }
+    @keyframes levelUpPop {
+        0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+        30% { transform: translate(-50%, -50%) scale(1.3); opacity: 1; }
+        100% { transform: translate(-50%, -50%) scale(1); opacity: 0; }
+    }
+    @media(max-width:400px) {
+        .pet-card { padding:18px 12px; } .pet-stage { width:135px; height:135px; }
+        .pet { width:75px; height:75px; } .board { width:170px; gap:5px; }
+        .cell { font-size:1.8rem; border-radius:10px; } .btn { padding:7px 12px; font-size:0.7rem; }
+        .slot-reel { width:60px; height:80px; font-size:2.5rem; } .dvd-cube { width:38px; height:38px; }
+    }
+  </style>
+</head>
+<body>
+<div class="dvd-cube" id="dvdCube"></div>
+<div class="sound-toy-btn" id="soundToyBtn">🔔</div>
+<div class="achievements-btn" id="achievementsBtn">🏆</div>
+<div class="level-panel" id="levelPanel">
+  <div class="level-header">
+    <span style="color:rgba(255,255,255,0.5); font-size:0.65rem; letter-spacing:2px;" id="levelLabel">УРОВЕНЬ ТАМАГОЧИ</span>
+    <span class="level-badge" id="levelBadge">1</span>
+  </div>
+  <div class="level-progress-bar"><div class="level-progress-fill" id="levelProgressFill" style="width:0%"></div></div>
+  <div class="level-task" id="levelTask">
+    <strong id="taskTitle">📋 Задание 1 уровня:</strong>
+    <span id="taskDescription">Накормить питомца 5 раз</span>
+    <div class="task-progress" id="taskProgress">0 / 5</div>
+  </div>
+  <div class="level-reward" id="levelReward">🎁 Награда на 5 уровне: 5 🪙</div>
+</div>
+<div class="container">
+  <div class="pet-card" id="petCard">
+    <button class="lang-btn" id="langBtn">EN</button>
+    <div class="speech-bubble" id="speechBubble"></div>
+    <div class="pet-name"><span id="petNameDisplay">Космо</span><button class="rename-btn" id="btnRename" title="Сменить имя (10💰)">✏️</button></div>
+    <div class="pet-title" id="petTitle">✦ ИИ-Питомец ✦</div>
+    <div class="coins-section">
+      <div class="coins-display"><span class="coin-icon">🪙</span><span id="coinsLabel">Монеты:</span><span id="coinsCount">0</span></div>
+      <div class="coin-timer"><span class="timer-icon">⏱️</span><span id="timerLabel">До монеты:</span><span class="timer-value" id="coinTimer">5:00</span></div>
+    </div>
+    <div class="food-counter"><span class="icon">🍕</span><span id="foodLabel">Еда:</span><span class="count" id="foodCount">3</span><span>/ 10</span></div>
+    <div class="pet-stage" id="petStage">
+      <div class="pet" id="pet"><div class="pupil left"></div><div class="pupil right"></div><div class="mouth"></div></div>
+      <div class="pet-hat" id="petHat" style="display:none;"></div>
+      <div class="pet-effects" id="petEffects"></div>
+    </div>
+    <div class="warning-msg" id="warningMsg"></div>
+    <div class="stats">
+      <div class="stat"><span class="stat-label" id="hungerLabel">🍕 Голод</span><div class="stat-bar"><div class="stat-fill hunger" id="hungerBar" style="width:70%"></div></div><span class="stat-value" id="hungerVal">70%</span></div>
+      <div class="stat"><span class="stat-label" id="happyLabel">😊 Радость</span><div class="stat-bar"><div class="stat-fill happy" id="happyBar" style="width:60%"></div></div><span class="stat-value" id="happyVal">60%</span></div>
+      <div class="stat"><span class="stat-label" id="energyLabel">⚡ Энергия</span><div class="stat-bar"><div class="stat-fill energy" id="energyBar" style="width:80%"></div></div><span class="stat-value" id="energyVal">80%</span></div>
+    </div>
+    <div class="actions" id="actionsRow">
+      <button class="btn" id="btnFeed">🍕 Кормить</button>
+      <button class="btn get-food" id="btnGetFood">🧮 Добыть еду</button>
+      <button class="btn buy-food-btn" id="btnBuyFood">🪙 Купить еду (5💰)</button>
+      <button class="btn casino-btn" id="btnCasino">🎰 Казино (1💰)</button>
+      <button class="btn" id="btnPlay">🎾 Играть <small>(КД 8с)</small></button>
+      <button class="btn" id="btnSleep">💤 Спать <small>(КД 15с)</small></button>
+      <button class="btn" id="btnTeach">📖 Учить</button>
+      <button class="btn shop-btn" id="btnShop">🛒 Магазин</button>
+    </div>
+    <div id="bgButtonsRow" style="margin-top:6px;"><button class="btn primary" id="btnChangeBg">🎨 Сменить фон (вызов ИИ!)</button></div>
+    <button class="btn restart-btn" id="btnRestart" style="margin-top:8px; display:none;">🔄 Начать заново</button>
+  </div>
+</div>
+<!-- Все модалки остаются без изменений... -->
+<div class="modal-overlay" id="modalAchievements"><div class="modal"><h2 id="achTitle">🏆 Достижения</h2><div class="subtitle" id="achProgressText">Прогресс: 0/4 (0%)</div><div style="display:flex; flex-direction:column; gap:10px; margin:12px 0;"><div class="shop-item" data-ach="anniversary"><div class="shop-item-info"><div class="shop-item-name">🎂 <span class="ach-name-el">С юбилеем!</span></div><div class="shop-item-desc"><span class="ach-desc-el">Накопить 10 монет</span></div></div><span class="ach-status" style="color:#e94560;">❌</span></div><div class="shop-item" data-ach="gourmet"><div class="shop-item-info"><div class="shop-item-name">🍕 <span class="ach-name-el">Гурман</span></div><div class="shop-item-desc"><span class="ach-desc-el">50 кормёжек</span></div></div><span class="ach-status" style="color:#e94560;">❌</span></div><div class="shop-item" data-ach="firstSpin"><div class="shop-item-info"><div class="shop-item-name">🎰 <span class="ach-name-el">Это только начало!</span></div><div class="shop-item-desc"><span class="ach-desc-el">Первый спин в казино</span></div></div><span class="ach-status" style="color:#e94560;">❌</span></div><div class="shop-item" data-ach="gambler"><div class="shop-item-info"><div class="shop-item-name">🎲 <span class="ach-name-el">Азартный</span></div><div class="shop-item-desc"><span class="ach-desc-el">10 спинов в казино</span></div></div><span class="ach-status" style="color:#e94560;">❌</span></div></div><div class="btn-row"><button class="btn" id="btnCloseAchievements">✖ <span id="closeAchLabel">Закрыть</span></button></div></div></div>
+<div class="modal-overlay" id="modalShop"><div class="modal"><h2 id="shopTitle">🛒 Магазин</h2><div class="subtitle" id="shopSubtitle">Покупай предметы для питомца!</div><div class="shop-tabs" id="shopTabs"><button class="shop-tab active" data-tab="hats">🎩 <span class="tab-label">Шляпы</span></button><button class="shop-tab" data-tab="skins">🌈 <span class="tab-label">Скины</span></button><button class="shop-tab" data-tab="effects">💫 <span class="tab-label">Эффекты</span></button><button class="shop-tab" data-tab="boosts">⏫ <span class="tab-label">Ускорители</span></button><button class="shop-tab" data-tab="backgrounds">🏝️ <span class="tab-label">Фоны</span></button><button class="shop-tab" data-tab="misc">🎲 <span class="tab-label">Разное</span></button></div><div id="shopContainer"></div><div class="btn-row" style="margin-top:14px;"><button class="btn" id="btnCloseShop">✖ <span id="closeShopLabel">Закрыть</span></button></div></div></div>
+<div class="modal-overlay" id="modalRename"><div class="modal"><h2 id="renameTitle">✏️ Сменить имя</h2><div class="subtitle" id="renameSubtitle">Стоимость: 10 🪙</div><input type="text" class="math-input" id="renameInput" placeholder="Новое имя" autocomplete="off" style="width:200px;"><div class="math-feedback" id="renameFeedback"></div><div class="btn-row" style="margin-top:12px;"><button class="btn buy-food-btn" id="btnConfirmRename">✅ <span id="confirmRenameLabel">Сменить (10💰)</span></button><button class="btn" id="btnCloseRename">✖ <span id="cancelRenameLabel">Отмена</span></button></div></div></div>
+<div class="modal-overlay" id="modalGame"><div class="modal"><h2 id="gameTitle">⚡ Крестики-нолики</h2><div class="subtitle" id="modalSubtitle">Победи ИИ — смени фон!</div><div class="scoreboard"><div class="score-item"><span class="score-value wins" id="scoreWins">0</span><span class="score-label" id="winsLabel">Побед</span></div><div class="score-item"><span class="score-value draws" id="scoreDraws">0</span><span class="score-label" id="drawsLabel">Ничьи</span></div><div class="score-item"><span class="score-value losses" id="scoreLosses">0</span><span class="score-label" id="lossesLabel">Поражений</span></div></div><div style="margin:4px 0;"><span class="streak-badge hidden" id="streakBadge">🔥 Стрик: 0</span></div><div class="board" id="board"><div class="cell" data-index="0"></div><div class="cell" data-index="1"></div><div class="cell" data-index="2"></div><div class="cell" data-index="3"></div><div class="cell" data-index="4"></div><div class="cell" data-index="5"></div><div class="cell" data-index="6"></div><div class="cell" data-index="7"></div><div class="cell" data-index="8"></div></div><div class="game-status" id="gameStatus">Твой ход! ✖</div><div class="color-picker-row" id="colorPickerRow" style="display:none;"><span style="color:rgba(255,255,255,0.5);font-size:0.7rem;margin-right:4px;" id="colorLabel">Цвет:</span><div class="color-dot" style="background:#1a1a2e;" data-color="#1a1a2e"></div><div class="color-dot" style="background:#0f3460;" data-color="#0f3460"></div><div class="color-dot" style="background:#2d1b4e;" data-color="#2d1b4e"></div><div class="color-dot" style="background:#1b4332;" data-color="#1b4332"></div><div class="color-dot" style="background:#3d1e1e;" data-color="#3d1e1e"></div><div class="color-dot" style="background:#1a1a1a;" data-color="#1a1a1a"></div></div><div class="btn-row"><button class="btn" id="btnResetGame">🔄 <span id="resetGameLabel">Заново</span></button><button class="btn" id="btnCloseGame">✖ <span id="closeGameLabel">Закрыть</span></button></div></div></div>
+<div class="modal-overlay" id="modalMath"><div class="modal"><h2 id="mathTitle">🧮 Добудь еду!</h2><div class="subtitle" id="mathSubtitle">Реши пример — получи +2 еды</div><div class="math-example" id="mathExample">12 + 34 = ?</div><input type="number" class="math-input" id="mathInput" placeholder="Ответ" autocomplete="off"><div class="math-feedback" id="mathFeedback"></div><div class="btn-row" style="margin-top:12px;"><button class="btn" id="btnCheckMath">✅ <span id="checkMathLabel">Проверить</span></button><button class="btn" id="btnSkipMath">❌ <span id="skipMathLabel">Пропустить</span></button><button class="btn buy-food-btn" id="btnSkipWithCoins" style="display:none;">🪙 <span id="skipCoinsLabel">Пропустить (5💰)</span></button></div></div></div>
+<div class="modal-overlay" id="modalCasino"><div class="modal"><h2 id="casinoTitle">🎰 Казино Космо</h2><div class="subtitle" id="casinoSubtitle">Собери комбинацию — выиграй монеты!</div><div class="slot-cost">💰 <span id="entryLabel">Вход: 1 монета</span></div><div class="slot-machine"><div class="slot-reel" id="reel1">❓</div><div class="slot-reel" id="reel2">❓</div><div class="slot-reel" id="reel3">❓</div></div><div class="slot-result" id="slotResult"></div><div style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin:8px 0; letter-spacing:1px;">🎯 3 одинаковых = 2💰 &nbsp;|&nbsp; 🌟 W-I-N (строго) = 5💰</div><div class="btn-row"><button class="btn casino-btn" id="btnSpin">🎲 <span id="spinLabel">Крутить (1💰)</span></button><button class="btn" id="btnCloseCasino">✖ <span id="closeCasinoLabel">Закрыть</span></button></div></div></div>
+<div class="modal-overlay" id="modalAdmin"><div class="modal"><div class="admin-badge">⚙️ АДМИН-ПАНЕЛЬ</div><h2 style="color:#ff6b6b;">Системное меню</h2><div class="subtitle">Управление тамагочи</div><div class="admin-grid"><button class="btn admin-green" id="adminAddCoin">🪙 +1 Монета</button><button class="btn admin-btn" id="adminRemoveCoin">🪙 -1 Монета</button><button class="btn admin-green" id="adminAddFood">🍕 +2 Еды</button><button class="btn admin-green" id="adminHealAll">💚 Всё в 100%</button><button class="btn admin-btn" id="adminKill">💀 Убить Космо</button><button class="btn" id="adminFreeBg" style="background:rgba(100,100,255,0.2);border-color:rgba(100,100,255,0.4);color:#a5b4fc;">🎨 Сменить фон</button></div><div class="admin-level-row"><button class="btn admin-green" id="adminLevelUp">⬆️ +1 Уровень</button><button class="btn admin-btn" id="adminLevelDown">⬇️ -1 Уровень</button></div><div class="admin-level-row"><input type="number" class="admin-level-input" id="adminSetLevelInput" placeholder="Уровень" min="1" max="999"><button class="btn admin-green" id="adminSetLevelBtn">🎯 Установить</button></div><div class="admin-coins-row"><input type="number" class="admin-coins-input" id="adminSetCoinsInput" placeholder="Монеты" min="0" max="999999"><button class="btn admin-green" id="adminSetCoinsBtn">🪙 Установить</button></div><button class="btn admin-green" id="adminGetAllItems" style="width:100%; margin:6px 0;">🎁 Получить все предметы</button><button class="btn admin-green" id="adminGetAllAchievements" style="width:100%; margin:6px 0;">🏆 Получить все достижения</button><div class="admin-speak-row"><input type="text" class="admin-speak-input" id="adminSpeakInput" placeholder="Фраза для Космо..."><button class="btn admin-btn" id="adminSpeakBtn">🗣️</button></div><div class="btn-row" style="margin-top:14px;"><button class="btn" id="btnCloseAdmin">✖ Закрыть</button></div></div></div>
+
+<script>
+  (function() {
+      const SAVE_KEY = 'tamagochi_save_v3';
+
+      // ==================== ЯЗЫКИ ====================
+      let currentLang = 'ru';
+      const translations = {
+          ru: {
+              petTitle: '✦ ИИ-Питомец ✦', coinsLabel: 'Монеты:', timerLabel: 'До монеты:', foodLabel: 'Еда:',
+              hungerLabel: '🍕 Голод', happyLabel: '😊 Радость', energyLabel: '⚡ Энергия',
+              btnFeed: '🍕 Кормить', btnGetFood: '🧮 Добыть еду', btnBuyFood: '🪙 Купить еду (5💰)',
+              btnCasino: '🎰 Казино (1💰)', btnPlay: '🎾 Играть (КД 8с)', btnSleep: '💤 Спать (КД 15с)',
+              btnTeach: '📖 Учить', btnShop: '🛒 Магазин', btnChangeBg: '🎨 Сменить фон (вызов ИИ!)',
+              btnRestart: '🔄 Начать заново', btnPlayGame: '🎮 Крестики-нолики', btnFreeBg: '🎨 Сменить фон',
+              warningLow: '⚠️ Все показатели должны быть ≥50% для смены фона',
+              sayHungry: 'ГОЛОДЕН! 😡', saySad: 'Мне грустно... 😢', sayTired: 'Я так устал...',
+              sayNoFood: 'Нет еды! Добудь! 🧮', sayFull: 'Я сыт! 🫄', sayFed: 'Ням-ням! Спасибо! 🍕',
+              sayPlay: ['Ура! Ещё! 🎾','Весело!','Лови!','Ты лучший!'], saySleep: 'Zzz... Сладких снов 💤',
+              sayTeach: 'Ого! "${word}"! Запомнил! ✨', sayKnowWord: 'Я уже знаю "${word}"! 📚',
+              sayWin: 'Ты выиграл... Ладно, выбирай цвет 😔',
+              sayLose: ['Ха! Я умнее! 🤖','Не расстраивайся!','Может, в другой раз?'],
+              sayDraw: 'Ничья! Интересно...', sayNewBg: 'Новый фон! Бесплатно! 🌈',
+              sayGame: 'Давай сыграем! Победи меня! 🎮', sayAllAch: '🎉 ВСЕ ДОСТИЖЕНИЯ! Фон и игра бесплатно! 🏆',
+              sayDead: 'Прощай...', sayRestart: 'Я вернулся! Ура! 🎉', sayBuy: 'Купил "${name}"! 🎉',
+              sayNoCoins: 'Недостаточно монет! 🪙', sayCoins: '+${amount} монет',
+              sayNeedCoins: 'Нужно 10 монет! 🪙', sayNeed1Coin: 'Нужна 1 монета! 🪙', sayNeed5Coins: 'Нужно 5 монет! 🪙',
+              sayAdmin: '🔓 Доступ получен', sayAllItems: 'Все предметы получены! 🎁', sayAllAchAdmin: 'Все достижения получены! 🏆',
+              sayFoodEnough: 'Еды достаточно! 🍕', sayFoodMax: 'Еды достаточно! Максимум! 🍕',
+              saySkipMath: 'Ладно, в другой раз...', saySkipCoins: 'Лёгкая еда за монеты! 🪙🍕',
+              sayMathOk: 'Ура! Еда! Ты умный! 🧠', sayMathFail: 'Неправильно... Попробуй ещё! 😞',
+              sayRenameOk: 'Меня зовут ${name}! ✨', sayNewColor: 'Ого! Новый цвет! 🌈',
+              sayJackpot: 'ДЖЕКПОТ!!! 🌟🌟🌟', sayWinSlot: 'Выигрыш! Ура! 🎰',
+              sayAch: '🏆 Достижение: ${name}!', sayLevelUp: '🎉 УРОВЕНЬ ${level}! +${reward} монет!',
+              sayLevelUpNoReward: '🎉 УРОВЕНЬ ${level}! Следующая награда на уровне ${nextRewardLevel}!',
+              sayCoinsSet: '💰 Монеты установлены: ${amount}!', saySave: '💾 Прогресс сохранён!',
+              achTitle: '🏆 Достижения', achProgress: 'Прогресс: ${count}/${total} (${pct}%)',
+              achAnniversary: 'С юбилеем!', achAnniversaryDesc: 'Накопить 10 монет',
+              achGourmet: 'Гурман', achGourmetDesc: '50 кормёжек',
+              achFirstSpin: 'Это только начало!', achFirstSpinDesc: 'Первый спин в казино',
+              achGambler: 'Азартный', achGamblerDesc: '10 спинов в казино',
+              closeLabel: 'Закрыть', shopTitle: '🛒 Магазин', shopSubtitle: 'Покупай предметы для питомца!',
+              tabHats: 'Шляпы', tabSkins: 'Скины', tabEffects: 'Эффекты', tabBoosts: 'Ускорители',
+              tabBackgrounds: 'Фоны', tabMisc: 'Разное', buyBtn: 'Купить (${price}💰)', removeBtn: 'Снять', wearBtn: 'Надеть',
+              renameTitle: '✏️ Сменить имя', renameSubtitle: 'Стоимость: 10 🪙',
+              confirmRename: 'Сменить (10💰)', cancelRename: 'Отмена',
+              gameTitle: '⚡ Крестики-нолики', gameSubtitle: 'Победи ИИ — смени фон!',
+              winsLabel: 'Побед', drawsLabel: 'Ничьи', lossesLabel: 'Поражений',
+              gameStatus: 'Твой ход! ✖', gameStatusWin: '🎉 Ты выиграл! Выбери цвет фона:',
+              gameStatusLose: '😈 ИИ победил! Фон остаётся.', gameStatusDraw: '🤝 Ничья! Фон остаётся.',
+              colorLabel: 'Цвет:', resetGame: 'Заново', closeGame: 'Закрыть',
+              mathTitle: '🧮 Добудь еду!', mathSubtitle: 'Реши пример — получи +2 еды',
+              checkMath: 'Проверить', skipMath: 'Пропустить', skipCoins: 'Пропустить (5💰)',
+              casinoTitle: '🎰 Казино Космо', casinoSubtitle: 'Собери комбинацию — выиграй монеты!',
+              entryLabel: 'Вход: 1 монета', spinLabel: 'Крутить (1💰)', closeCasino: 'Закрыть',
+              levelLabel: 'УРОВЕНЬ ТАМАГОЧИ', levelReward: '🎁 Награда на ${level} уровне: ${reward} 🪙',
+              levelRewardNext: '🎁 Следующая награда: ${level} ур. (${reward} 🪙)',
+              taskTitle: '📋 Задание ${level} уровня:', phrases: ['Привет!','Как дела?','Поиграем?','Я тут!','Дай еды!','Коплю монеты!']
+          },
+          en: {
+              petTitle: '✦ AI-Pet ✦', coinsLabel: 'Coins:', timerLabel: 'Next coin:', foodLabel: 'Food:',
+              hungerLabel: '🍕 Hunger', happyLabel: '😊 Happy', energyLabel: '⚡ Energy',
+              btnFeed: '🍕 Feed', btnGetFood: '🧮 Get Food', btnBuyFood: '🪙 Buy Food (5💰)',
+              btnCasino: '🎰 Casino (1💰)', btnPlay: '🎾 Play (CD 8s)', btnSleep: '💤 Sleep (CD 15s)',
+              btnTeach: '📖 Teach', btnShop: '🛒 Shop', btnChangeBg: '🎨 Change BG (vs AI!)',
+              btnRestart: '🔄 Restart', btnPlayGame: '🎮 Tic-Tac-Toe', btnFreeBg: '🎨 Change BG',
+              warningLow: '⚠️ All stats must be ≥50% to change BG',
+              sayHungry: 'HUNGRY! 😡', saySad: 'I am sad... 😢', sayTired: 'So tired...',
+              sayNoFood: 'No food! Get some! 🧮', sayFull: 'I am full! 🫄', sayFed: 'Yummy! Thanks! 🍕',
+              sayPlay: ['Yay! More! 🎾','Fun!','Catch!','You are the best!'], saySleep: 'Zzz... Sweet dreams 💤',
+              sayTeach: 'Wow! "${word}"! Got it! ✨', sayKnowWord: 'I know "${word}" already! 📚',
+              sayWin: 'You win... Ok, pick a color 😔', sayLose: ['Ha! I am smarter! 🤖','Don\'t worry!','Maybe next time?'],
+              sayDraw: 'A draw! Interesting...', sayNewBg: 'New background! Free! 🌈',
+              sayGame: 'Let\'s play! Beat me! 🎮', sayAllAch: '🎉 ALL ACHIEVEMENTS! BG & game free! 🏆',
+              sayDead: 'Goodbye...', sayRestart: 'I am back! Yay! 🎉', sayBuy: 'Bought "${name}"! 🎉',
+              sayNoCoins: 'Not enough coins! 🪙', sayCoins: '+${amount} coins',
+              sayNeedCoins: 'Need 10 coins! 🪙', sayNeed1Coin: 'Need 1 coin! 🪙', sayNeed5Coins: 'Need 5 coins! 🪙',
+              sayAdmin: '🔓 Access granted', sayAllItems: 'Got all items! 🎁', sayAllAchAdmin: 'Got all achievements! 🏆',
+              sayFoodEnough: 'Enough food! 🍕', sayFoodMax: 'Food full! Max! 🍕',
+              saySkipMath: 'Ok, maybe later...', saySkipCoins: 'Easy food for coins! 🪙🍕',
+              sayMathOk: 'Yay! Food! You are smart! 🧠', sayMathFail: 'Wrong... Try again! 😞',
+              sayRenameOk: 'My name is ${name}! ✨', sayNewColor: 'Wow! New color! 🌈',
+              sayJackpot: 'JACKPOT!!! 🌟🌟🌟', sayWinSlot: 'You win! Yay! 🎰',
+              sayAch: '🏆 Achievement: ${name}!', sayLevelUp: '🎉 LEVEL ${level}! +${reward} coins!',
+              sayLevelUpNoReward: '🎉 LEVEL ${level}! Next reward at level ${nextRewardLevel}!',
+              sayCoinsSet: '💰 Coins set: ${amount}!', saySave: '💾 Progress saved!',
+              achTitle: '🏆 Achievements', achProgress: 'Progress: ${count}/${total} (${pct}%)',
+              achAnniversary: 'Happy Anniversary!', achAnniversaryDesc: 'Collect 10 coins',
+              achGourmet: 'Gourmet', achGourmetDesc: '50 feedings',
+              achFirstSpin: 'Just the Beginning!', achFirstSpinDesc: 'First casino spin',
+              achGambler: 'Gambler', achGamblerDesc: '10 casino spins',
+              closeLabel: 'Close', shopTitle: '🛒 Shop', shopSubtitle: 'Buy items for your pet!',
+              tabHats: 'Hats', tabSkins: 'Skins', tabEffects: 'Effects', tabBoosts: 'Boosts',
+              tabBackgrounds: 'Backgrounds', tabMisc: 'Misc', buyBtn: 'Buy (${price}💰)', removeBtn: 'Remove', wearBtn: 'Wear',
+              renameTitle: '✏️ Rename', renameSubtitle: 'Cost: 10 🪙',
+              confirmRename: 'Rename (10💰)', cancelRename: 'Cancel',
+              gameTitle: '⚡ Tic-Tac-Toe', gameSubtitle: 'Beat AI — change BG!',
+              winsLabel: 'Wins', drawsLabel: 'Draws', lossesLabel: 'Losses',
+              gameStatus: 'Your turn! ✖', gameStatusWin: '🎉 You won! Pick a BG color:',
+              gameStatusLose: '😈 AI won! BG stays.', gameStatusDraw: '🤝 Draw! BG stays.',
+              colorLabel: 'Color:', resetGame: 'Reset', closeGame: 'Close',
+              mathTitle: '🧮 Get Food!', mathSubtitle: 'Solve to get +2 food',
+              checkMath: 'Check', skipMath: 'Skip', skipCoins: 'Skip (5💰)',
+              casinoTitle: '🎰 Cosmo Casino', casinoSubtitle: 'Match to win coins!',
+              entryLabel: 'Entry: 1 coin', spinLabel: 'Spin (1💰)', closeCasino: 'Close',
+              levelLabel: 'TAMAGOCHI LEVEL', levelReward: '🎁 Reward at lvl ${level}: ${reward} 🪙',
+              levelRewardNext: '🎁 Next reward: lvl ${level} (${reward} 🪙)',
+              taskTitle: '📋 Level ${level} task:', phrases: ['Hi!','How are you?','Let\'s play!','I am here!','Give food!','Saving coins!']
+          }
+      };
+
+      function t(key, ...args) {
+          let text = (translations[currentLang] && translations[currentLang][key]) || translations['ru'][key] || key;
+          if (args.length && typeof args[0] === 'object') {
+              Object.entries(args[0]).forEach(([k, v]) => { text = text.replace('${' + k + '}', v); });
+          }
+          return text;
+      }
+
+      function applyLanguage() {
+          document.getElementById('langBtn').textContent = currentLang === 'ru' ? 'EN' : 'RU';
+          document.getElementById('petTitle').textContent = t('petTitle');
+          document.getElementById('coinsLabel').textContent = t('coinsLabel');
+          document.getElementById('timerLabel').textContent = t('timerLabel');
+          document.getElementById('foodLabel').textContent = t('foodLabel');
+          document.getElementById('hungerLabel').textContent = t('hungerLabel');
+          document.getElementById('happyLabel').textContent = t('happyLabel');
+          document.getElementById('energyLabel').textContent = t('energyLabel');
+          document.getElementById('btnFeed').innerHTML = t('btnFeed');
+          document.getElementById('btnGetFood').innerHTML = t('btnGetFood');
+          document.getElementById('btnBuyFood').innerHTML = t('btnBuyFood');
+          document.getElementById('btnCasino').innerHTML = t('btnCasino');
+          document.getElementById('btnPlay').innerHTML = t('btnPlay');
+          document.getElementById('btnSleep').innerHTML = t('btnSleep');
+          document.getElementById('btnTeach').innerHTML = t('btnTeach');
+          document.getElementById('btnShop').innerHTML = t('btnShop');
+          updateBgButtonsText();
+          document.getElementById('btnRestart').innerHTML = t('btnRestart');
+          document.getElementById('closeAchLabel').textContent = t('closeLabel');
+          document.getElementById('closeShopLabel').textContent = t('closeLabel');
+          document.getElementById('confirmRenameLabel').textContent = t('confirmRename');
+          document.getElementById('cancelRenameLabel').textContent = t('cancelRename');
+          document.getElementById('renameTitle').textContent = t('renameTitle');
+          document.getElementById('renameSubtitle').textContent = t('renameSubtitle');
+          document.getElementById('gameTitle').textContent = t('gameTitle');
+          document.getElementById('winsLabel').textContent = t('winsLabel');
+          document.getElementById('drawsLabel').textContent = t('drawsLabel');
+          document.getElementById('lossesLabel').textContent = t('lossesLabel');
+          document.getElementById('resetGameLabel').textContent = t('resetGame');
+          document.getElementById('closeGameLabel').textContent = t('closeGame');
+          document.getElementById('colorLabel').textContent = t('colorLabel');
+          document.getElementById('mathTitle').textContent = t('mathTitle');
+          document.getElementById('mathSubtitle').textContent = t('mathSubtitle');
+          document.getElementById('checkMathLabel').textContent = t('checkMath');
+          document.getElementById('skipMathLabel').textContent = t('skipMath');
+          document.getElementById('skipCoinsLabel').textContent = t('skipCoins');
+          document.getElementById('casinoTitle').textContent = t('casinoTitle');
+          document.getElementById('casinoSubtitle').textContent = t('casinoSubtitle');
+          document.getElementById('entryLabel').textContent = t('entryLabel');
+          document.getElementById('spinLabel').textContent = t('spinLabel');
+          document.getElementById('closeCasinoLabel').textContent = t('closeCasino');
+          document.getElementById('achTitle').textContent = t('achTitle');
+          document.getElementById('levelLabel').textContent = t('levelLabel');
+          document.querySelectorAll('.ach-name-el').forEach((el, i) => {
+              const keys = ['achAnniversary', 'achGourmet', 'achFirstSpin', 'achGambler'];
+              el.textContent = t(keys[i] || '');
+          });
+          document.querySelectorAll('.ach-desc-el').forEach((el, i) => {
+              const keys = ['achAnniversaryDesc', 'achGourmetDesc', 'achFirstSpinDesc', 'achGamblerDesc'];
+              el.textContent = t(keys[i] || '');
+          });
+          document.querySelectorAll('.tab-label').forEach((el, i) => {
+              const keys = ['tabHats', 'tabSkins', 'tabEffects', 'tabBoosts', 'tabBackgrounds', 'tabMisc'];
+              el.textContent = t(keys[i] || '');
+          });
+          document.getElementById('shopTitle').textContent = t('shopTitle');
+          document.getElementById('shopSubtitle').textContent = t('shopSubtitle');
+          if (modalShop.classList.contains('active')) renderShop(state.activeTab);
+          updateLevelPanel();
+      }
+
+      function updateBgButtonsText() {
+          if (state.allAchievementsUnlocked) {
+              const playBtn = document.getElementById('btnPlayGame');
+              const freeBgBtn = document.getElementById('btnFreeBg');
+              if (playBtn) playBtn.innerHTML = t('btnPlayGame');
+              if (freeBgBtn) freeBgBtn.innerHTML = t('btnFreeBg');
+          } else {
+              const bgBtn = document.getElementById('btnChangeBg');
+              if (bgBtn) bgBtn.innerHTML = t('btnChangeBg');
+          }
+      }
+
+      function toggleLanguage() { currentLang = currentLang === 'ru' ? 'en' : 'ru'; applyLanguage(); }
+
+      // ==================== AUDIO CONTEXT ====================
+      let audioCtx = null;
+      function getAudioCtx() {
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          if (audioCtx.state === 'suspended') audioCtx.resume();
+          return audioCtx;
+      }
+      function playBeep(freq, duration, type = 'sine', volume = 0.08) {
+          try { const ctx = getAudioCtx(); const osc = ctx.createOscillator(); const gain = ctx.createGain();
+              osc.type = type; osc.frequency.setValueAtTime(freq, ctx.currentTime);
+              gain.gain.setValueAtTime(volume, ctx.currentTime); gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + duration);
+              osc.connect(gain); gain.connect(ctx.destination); osc.start(); osc.stop(ctx.currentTime + duration);
+          } catch(e) {}
+      }
+      function levelUpSound() { playBeep(523, 0.12, 'triangle', 0.1); setTimeout(()=>playBeep(659, 0.12, 'triangle', 0.1), 120); setTimeout(()=>playBeep(784, 0.15, 'triangle', 0.12), 240); setTimeout(()=>playBeep(1047, 0.2, 'triangle', 0.14), 360); }
+      function slotTickSound() { playBeep(880, 0.08, 'square', 0.05); }
+      function slotWinSound() { playBeep(660, 0.1, 'triangle', 0.09); setTimeout(()=>playBeep(880, 0.12, 'triangle', 0.1), 120); }
+      function slotJackpotSound() { playBeep(520, 0.08, 'triangle', 0.07); setTimeout(()=>playBeep(780, 0.1, 'triangle', 0.1), 100); setTimeout(()=>playBeep(1040, 0.15, 'triangle', 0.12), 220); }
+      function slotLoseSound() { playBeep(200, 0.2, 'sawtooth', 0.04); }
+      function toyClickSound() { playBeep(1200, 0.07, 'sine', 0.06); }
+      function achievementSound() { playBeep(800, 0.1, 'triangle', 0.08); setTimeout(()=>playBeep(1000, 0.15, 'triangle', 0.1), 100); setTimeout(()=>playBeep(1200, 0.2, 'triangle', 0.12), 220); }
+      function allAchievementsSound() { playBeep(523, 0.15, 'triangle', 0.1); setTimeout(()=>playBeep(659, 0.15, 'triangle', 0.1), 150); setTimeout(()=>playBeep(784, 0.15, 'triangle', 0.1), 300); setTimeout(()=>playBeep(1047, 0.3, 'triangle', 0.12), 450); }
+
+      function getInitialShopItems() {
+          return {
+              cube: { owned: false, active: false, price: 5, name: 'Летающий кубик', nameEn: 'Flying Cube', desc: 'DVD-заставка на фоне', descEn: 'DVD screensaver', category: 'misc', emoji: '🎲' },
+              toy: { owned: false, active: false, price: 1, name: 'Звуковая кнопка', nameEn: 'Sound Button', desc: 'Негромкий приятный звук', descEn: 'Soft pleasant sound', category: 'misc', emoji: '🔔' },
+              hat_cylinder: { owned: false, active: false, price: 15, name: 'Цилиндр', nameEn: 'Top Hat', desc: 'Классический чёрный цилиндр', descEn: 'Classic black top hat', category: 'hats', emoji: '🎩' },
+              hat_cap: { owned: false, active: false, price: 10, name: 'Кепка', nameEn: 'Cap', desc: 'Спортивная кепка', descEn: 'Sports cap', category: 'hats', emoji: '🧢' },
+              hat_crown: { owned: false, active: false, price: 25, name: 'Корона', nameEn: 'Crown', desc: 'Королевская золотая корона', descEn: 'Royal golden crown', category: 'hats', emoji: '👑' },
+              skin_zebra: { owned: false, active: false, price: 30, name: 'Зебра', nameEn: 'Zebra', desc: 'Чёрно-белые полоски', descEn: 'Black & white stripes', category: 'skins', pattern: 'repeating-linear-gradient(0deg, #fff 0px, #fff 8px, #222 8px, #222 16px)' },
+              skin_rainbow: { owned: false, active: false, price: 35, name: 'Радуга', nameEn: 'Rainbow', desc: 'Все цвета радуги', descEn: 'All rainbow colors', category: 'skins', pattern: 'linear-gradient(90deg, red, orange, yellow, green, blue, indigo, violet)' },
+              skin_gold: { owned: false, active: false, price: 40, name: 'Золотой', nameEn: 'Golden', desc: 'Сияющий золотой', descEn: 'Shiny golden', category: 'skins', pattern: 'linear-gradient(135deg, #ffd700, #ffaa00, #ffd700)' },
+              effect_stars: { owned: false, active: false, price: 20, name: 'Звёздочки', nameEn: 'Stars', desc: 'Звёздочки вокруг питомца', descEn: 'Stars around pet', category: 'effects', emoji: '✨' },
+              effect_hearts: { owned: false, active: false, price: 20, name: 'Сердечки', nameEn: 'Hearts', desc: 'След из сердечек', descEn: 'Heart trail', category: 'effects', emoji: '💕' },
+              effect_aura: { owned: false, active: false, price: 20, name: 'Аура', nameEn: 'Aura', desc: 'Мистическая аура', descEn: 'Mystic aura', category: 'effects', emoji: '💫' },
+              boost_coin: { owned: false, active: false, price: 10, name: 'Ускоритель монет', nameEn: 'Coin Booster', desc: 'Таймер монеты с 5 до 3 минут', descEn: 'Coin timer 5→3 min', category: 'boosts', emoji: '⏫' },
+              bg_beach: { owned: false, active: false, price: 10, name: 'Пляж', nameEn: 'Beach', desc: 'Солнечный пляж', descEn: 'Sunny beach', category: 'backgrounds', bg: 'linear-gradient(180deg, #87CEEB, #f0e68c)' },
+              bg_space: { owned: false, active: false, price: 10, name: 'Космос', nameEn: 'Space', desc: 'Звёздное небо', descEn: 'Starry sky', category: 'backgrounds', bg: 'linear-gradient(180deg, #0a0a2e, #1a1a4e, #2a2a6e)' },
+              bg_rain: { owned: false, active: false, price: 10, name: 'Дождь', nameEn: 'Rain', desc: 'Дождливая погода', descEn: 'Rainy weather', category: 'backgrounds', bg: 'linear-gradient(180deg, #4a4a6a, #2a2a4a, #1a1a2e)' },
+              bg_fire: { owned: false, active: false, price: 10, name: 'Ад', nameEn: 'Hell', desc: 'Пламя и лава', descEn: 'Fire & lava', category: 'backgrounds', bg: 'linear-gradient(180deg, #ff4500, #ff6347, #8b0000)' },
+          };
+      }
+
+      function getTaskPool() {
+          return [
+              { id: 'feed', goal: 5, desc: 'Накормить питомца 5 раз', descEn: 'Feed pet 5 times', icon: '🍕', trackKey: 'feedCount' },
+              { id: 'feed', goal: 10, desc: 'Накормить питомца 10 раз', descEn: 'Feed pet 10 times', icon: '🍕', trackKey: 'feedCount' },
+              { id: 'feed', goal: 15, desc: 'Накормить питомца 15 раз', descEn: 'Feed pet 15 times', icon: '🍕', trackKey: 'feedCount' },
+              { id: 'casino', goal: 3, desc: 'Сделать 3 крутки в казино', descEn: 'Spin casino 3 times', icon: '🎰', trackKey: 'spinCount' },
+              { id: 'casino', goal: 5, desc: 'Сделать 5 круток в казино', descEn: 'Spin casino 5 times', icon: '🎰', trackKey: 'spinCount' },
+              { id: 'casino', goal: 8, desc: 'Сделать 8 круток в казино', descEn: 'Spin casino 8 times', icon: '🎰', trackKey: 'spinCount' },
+              { id: 'tictactoe_wins', goal: 2, desc: 'Победить ИИ в крестиках-ноликах 2 раза', descEn: 'Beat AI in Tic-Tac-Toe 2 times', icon: '⚡', trackKey: 'tictactoeWinCount' },
+              { id: 'tictactoe_wins', goal: 3, desc: 'Победить ИИ в крестиках-ноликах 3 раза', descEn: 'Beat AI in Tic-Tac-Toe 3 times', icon: '⚡', trackKey: 'tictactoeWinCount' },
+              { id: 'tictactoe_wins', goal: 5, desc: 'Победить ИИ в крестиках-ноликах 5 раз', descEn: 'Beat AI in Tic-Tac-Toe 5 times', icon: '⚡', trackKey: 'tictactoeWinCount' },
+              { id: 'teach', goal: 3, desc: 'Научить питомца 3 новым словам', descEn: 'Teach pet 3 new words', icon: '📖', trackKey: 'teachCount' },
+              { id: 'teach', goal: 5, desc: 'Научить питомца 5 новым словам', descEn: 'Teach pet 5 new words', icon: '📖', trackKey: 'teachCount' },
+              { id: 'teach', goal: 8, desc: 'Научить питомца 8 новым словам', descEn: 'Teach pet 8 new words', icon: '📖', trackKey: 'teachCount' },
+              { id: 'play', goal: 5, desc: 'Поиграть с питомцем 5 раз', descEn: 'Play with pet 5 times', icon: '🎾', trackKey: 'playCount' },
+              { id: 'play', goal: 8, desc: 'Поиграть с питомцем 8 раз', descEn: 'Play with pet 8 times', icon: '🎾', trackKey: 'playCount' },
+              { id: 'sleep', goal: 3, desc: 'Уложить питомца спать 3 раза', descEn: 'Put pet to sleep 3 times', icon: '💤', trackKey: 'sleepCount' },
+              { id: 'sleep', goal: 5, desc: 'Уложить питомца спать 5 раз', descEn: 'Put pet to sleep 5 times', icon: '💤', trackKey: 'sleepCount' },
+              { id: 'math', goal: 3, desc: 'Решить 3 математических примера', descEn: 'Solve 3 math problems', icon: '🧮', trackKey: 'mathSolvedCount' },
+              { id: 'math', goal: 5, desc: 'Решить 5 математических примеров', descEn: 'Solve 5 math problems', icon: '🧮', trackKey: 'mathSolvedCount' },
+              { id: 'buy', goal: 2, desc: 'Купить 2 предмета в магазине', descEn: 'Buy 2 shop items', icon: '🛒', trackKey: 'buyCount' },
+              { id: 'buy', goal: 4, desc: 'Купить 4 предмета в магазине', descEn: 'Buy 4 shop items', icon: '🛒', trackKey: 'buyCount' },
+              { id: 'coins', goal: 5, desc: 'Накопить 5 монет (единовременно)', descEn: 'Have 5 coins at once', icon: '🪙', trackKey: 'coinsAtOnce' },
+              { id: 'coins', goal: 15, desc: 'Накопить 15 монет (единовременно)', descEn: 'Have 15 coins at once', icon: '🪙', trackKey: 'coinsAtOnce' },
+              { id: 'bg_change', goal: 1, desc: 'Сменить фон (победив ИИ)', descEn: 'Change background (beat AI)', icon: '🎨', trackKey: 'bgChangeCount' },
+          ];
+      }
+
+      // ==================== СОХРАНЕНИЕ И ЗАГРУЗКА ====================
+      function saveGame() {
+          const saveData = {
+              hunger: state.hunger, happy: state.happy, energy: state.energy,
+              food: state.food, coins: state.coins, petName: state.petName,
+              bgColor: state.bgColor, isDead: state.isDead,
+              wins: state.wins, losses: state.losses, draws: state.draws,
+              currentStreak: state.currentStreak, coinTimerSeconds: state.coinTimerSeconds,
+              shopItems: state.shopItems, totalFeeds: state.totalFeeds,
+              totalSpins: state.totalSpins, achievements: state.achievements,
+              allAchievementsUnlocked: state.allAchievementsUnlocked,
+              level: state.level, currentTask: state.currentTask,
+              // Сохраняем счётчики для заданий
+              feedCount: state.feedCount, spinCount: state.spinCount,
+              tictactoeWinCount: state.tictactoeWinCount, teachCount: state.teachCount,
+              playCount: state.playCount, sleepCount: state.sleepCount,
+              mathSolvedCount: state.mathSolvedCount, buyCount: state.buyCount,
+              bgChangeCount: state.bgChangeCount, emotion: state.emotion,
+              currentLang: currentLang
+          };
+          localStorage.setItem(SAVE_KEY, JSON.stringify(saveData));
+      }
+
+      function loadGame() {
+          const saved = localStorage.getItem(SAVE_KEY);
+          if (!saved) return false;
+          try {
+              const data = JSON.parse(saved);
+              state.hunger = data.hunger ?? 70;
+              state.happy = data.happy ?? 60;
+              state.energy = data.energy ?? 80;
+              state.food = data.food ?? 3;
+              state.coins = data.coins ?? 0;
+              state.petName = data.petName || 'Космо';
+              state.bgColor = data.bgColor || '#1a1a2e';
+              state.isDead = data.isDead || false;
+              state.wins = data.wins ?? 0;
+              state.losses = data.losses ?? 0;
+              state.draws = data.draws ?? 0;
+              state.currentStreak = data.currentStreak ?? 0;
+              state.coinTimerSeconds = data.coinTimerSeconds ?? 300;
+              state.shopItems = data.shopItems || getInitialShopItems();
+              state.totalFeeds = data.totalFeeds ?? 0;
+              state.totalSpins = data.totalSpins ?? 0;
+              state.achievements = data.achievements || { anniversary: false, gourmet: false, firstSpin: false, gambler: false };
+              state.allAchievementsUnlocked = data.allAchievementsUnlocked || false;
+              state.level = data.level || 1;
+              state.currentTask = data.currentTask || null;
+              state.feedCount = data.feedCount ?? 0;
+              state.spinCount = data.spinCount ?? 0;
+              state.tictactoeWinCount = data.tictactoeWinCount ?? 0;
+              state.teachCount = data.teachCount ?? 0;
+              state.playCount = data.playCount ?? 0;
+              state.sleepCount = data.sleepCount ?? 0;
+              state.mathSolvedCount = data.mathSolvedCount ?? 0;
+              state.buyCount = data.buyCount ?? 0;
+              state.bgChangeCount = data.bgChangeCount ?? 0;
+              state.emotion = data.emotion || 'neutral';
+              if (data.currentLang) currentLang = data.currentLang;
+              if (!state.currentTask) assignNewTask();
+              return true;
+          } catch(e) {
+              console.error('Ошибка загрузки сохранения:', e);
+              return false;
+          }
+      }
+
+      function deleteSave() {
+          localStorage.removeItem(SAVE_KEY);
+      }
+
+      // Автосохранение каждые 5 секунд
+      let autoSaveInterval;
+
+      const state = {
+          hunger: 70, happy: 60, energy: 80, food: 3, maxFood: 10, coins: 0,
+          petName: 'Космо', emotion: 'neutral', speechTimer: null,
+          bgColor: '#1a1a2e', isDead: false,
+          wins: 0, losses: 0, draws: 0, currentStreak: 0,
+          cooldowns: { play: 0, sleep: 0 },
+          currentMath: { a: 0, b: 0, op: '+', answer: 0 },
+          slotSpinning: false, coinTimerSeconds: 300,
+          shopItems: getInitialShopItems(), activeTab: 'hats',
+          totalFeeds: 0, totalSpins: 0,
+          achievements: { anniversary: false, gourmet: false, firstSpin: false, gambler: false },
+          allAchievementsUnlocked: false,
+          level: 1, currentTask: null, taskProgress: 0,
+          feedCount: 0, spinCount: 0, tictactoeWinCount: 0,
+          teachCount: 0, playCount: 0, sleepCount: 0,
+          mathSolvedCount: 0, buyCount: 0, bgChangeCount: 0,
+      };
+
+      function getRandomTask() {
+          const pool = getTaskPool();
+          const maxGoal = 3 + state.level * 2;
+          const validTasks = pool.filter(t => t.goal <= maxGoal);
+          const tasks = validTasks.length > 0 ? validTasks : pool;
+          return tasks[Math.floor(Math.random() * tasks.length)];
+      }
+
+      function assignNewTask() {
+          const task = getRandomTask();
+          state.currentTask = task;
+          // ИСПРАВЛЕНИЕ: сбрасываем прогресс задания при получении нового
+          state.taskProgress = 0;
+          updateLevelPanel();
+      }
+
+      function getTaskProgressValue() {
+          if (!state.currentTask) return 0;
+          const key = state.currentTask.trackKey;
+          if (key === 'coinsAtOnce') return state.coins;
+          return state[key] || 0;
+      }
+
+      function isRewardLevel(level) { return level % 5 === 0; }
+
+      function getNextRewardLevel() {
+          let next = Math.ceil(state.level / 5) * 5;
+          if (next === state.level) next += 5;
+          return next;
+      }
+
+      function updateLevelPanel() {
+          document.getElementById('levelBadge').textContent = state.level;
+          const progress = getTaskProgressValue();
+          const goal = state.currentTask ? state.currentTask.goal : 1;
+          const pct = Math.min(100, Math.round((progress / goal) * 100));
+          document.getElementById('levelProgressFill').style.width = pct + '%';
+          if (state.currentTask) {
+              const desc = currentLang === 'ru' ? state.currentTask.desc : (state.currentTask.descEn || state.currentTask.desc);
+              document.getElementById('taskTitle').textContent = t('taskTitle', {level: state.level});
+              document.getElementById('taskDescription').textContent = (state.currentTask.icon || '📋') + ' ' + desc;
+              document.getElementById('taskProgress').textContent = `${Math.min(progress, goal)} / ${goal}`;
+          }
+          const nextReward = getNextRewardLevel();
+          const reward = nextReward;
+          document.getElementById('levelReward').textContent = t('levelRewardNext', {level: nextReward, reward: reward});
+      }
+
+      function checkTaskCompletion() {
+          if (!state.currentTask || state.isDead) return;
+          const progress = getTaskProgressValue();
+          if (progress >= state.currentTask.goal) {
+              const newLevel = state.level + 1;
+              state.level = newLevel;
+              let reward = 0;
+              if (isRewardLevel(newLevel)) {
+                  reward = newLevel;
+                  state.coins += reward;
+                  updateCoinsUI();
+              }
+              // ИСПРАВЛЕНИЕ: вычитаем выполненную цель из счётчика
+              if (state.currentTask.trackKey && state.currentTask.trackKey !== 'coinsAtOnce') {
+                  state[state.currentTask.trackKey] = Math.max(0, (state[state.currentTask.trackKey] || 0) - state.currentTask.goal);
+              }
+              showLevelUpEffect(); levelUpSound();
+              if (reward > 0) {
+                  say(t('sayLevelUp', {level: newLevel, reward: reward}), 3500);
+              } else {
+                  const nextRewardLevel = getNextRewardLevel();
+                  say(t('sayLevelUpNoReward', {level: newLevel, nextRewardLevel: nextRewardLevel}), 3500);
+              }
+              assignNewTask(); checkAchievements(); saveGame();
+          }
+          updateLevelPanel();
+      }
+
+      function showLevelUpEffect() {
+          const effect = document.createElement('div');
+          effect.className = 'level-up-effect'; effect.textContent = '🎉⬆️';
+          document.body.appendChild(effect);
+          setTimeout(() => effect.remove(), 2100);
+      }
+
+      // ==================== АДМИН ФУНКЦИИ ====================
+      function adminLevelUp() {
+          if (state.isDead) return;
+          const newLevel = state.level + 1;
+          state.level = newLevel;
+          if (isRewardLevel(newLevel)) { const reward = newLevel; state.coins += reward; updateCoinsUI(); say(t('sayLevelUp', {level: newLevel, reward: reward}), 3500); }
+          else { const nextRewardLevel = getNextRewardLevel(); say(t('sayLevelUpNoReward', {level: newLevel, nextRewardLevel: nextRewardLevel}), 3500); }
+          showLevelUpEffect(); levelUpSound(); assignNewTask(); updateLevelPanel(); saveGame();
+      }
+      function adminLevelDown() { if (state.isDead || state.level <= 1) return; state.level--; assignNewTask(); updateLevelPanel(); saveGame(); }
+      function adminSetLevel(targetLevel) {
+          if (state.isDead || targetLevel < 1) return;
+          const oldLevel = state.level; state.level = targetLevel;
+          if (targetLevel > oldLevel) { for (let lvl = oldLevel + 1; lvl <= targetLevel; lvl++) { if (isRewardLevel(lvl)) state.coins += lvl; } updateCoinsUI(); showLevelUpEffect(); levelUpSound(); say(t('sayLevelUp', {level: targetLevel, reward: 'много'}), 3500); }
+          assignNewTask(); updateLevelPanel(); saveGame();
+      }
+      function adminSetCoins(amount) { if (state.isDead) return; state.coins = amount; updateCoinsUI(); say(t('sayCoinsSet', {amount: amount}), 2500); checkAchievements(); checkTaskCompletion(); saveGame(); }
+
+      let vocabulary = ['привет', 'друг', 'вкусно', 'играть', 'спать', 'скучно'];
+      const slotSymbols = ['W', 'N', 'I', '7', '3', '2'];
+      const petEl = document.getElementById('pet'), petStage = document.getElementById('petStage'), petHat = document.getElementById('petHat'), petEffects = document.getElementById('petEffects');
+      const dvdCube = document.getElementById('dvdCube'), soundToyBtn = document.getElementById('soundToyBtn');
+      const petCard = document.getElementById('petCard'), petNameDisplay = document.getElementById('petNameDisplay'), speechBubble = document.getElementById('speechBubble');
+      const hungerBar = document.getElementById('hungerBar'), happyBar = document.getElementById('happyBar'), energyBar = document.getElementById('energyBar');
+      const hungerVal = document.getElementById('hungerVal'), happyVal = document.getElementById('happyVal'), energyVal = document.getElementById('energyVal');
+      const foodCountEl = document.getElementById('foodCount'), coinsCountEl = document.getElementById('coinsCount');
+      const coinTimerEl = document.getElementById('coinTimer'), warningMsg = document.getElementById('warningMsg');
+      const btnChangeBg = document.getElementById('btnChangeBg'), btnRestart = document.getElementById('btnRestart'), btnRename = document.getElementById('btnRename');
+      const bgButtonsRow = document.getElementById('bgButtonsRow');
+      const modalRename = document.getElementById('modalRename'), renameInput = document.getElementById('renameInput'), renameFeedback = document.getElementById('renameFeedback');
+      const modalGame = document.getElementById('modalGame'), modalMath = document.getElementById('modalMath'), modalCasino = document.getElementById('modalCasino'), modalAdmin = document.getElementById('modalAdmin');
+      const modalAchievements = document.getElementById('modalAchievements');
+      const modalShop = document.getElementById('modalShop'), shopContainer = document.getElementById('shopContainer'), shopTabs = document.getElementById('shopTabs');
+      const boardEl = document.getElementById('board'), gameStatus = document.getElementById('gameStatus'), colorPickerRow = document.getElementById('colorPickerRow');
+      const mathExampleEl = document.getElementById('mathExample'), mathInput = document.getElementById('mathInput'), mathFeedback = document.getElementById('mathFeedback');
+      const btnSkipWithCoins = document.getElementById('btnSkipWithCoins');
+      const scoreWinsEl = document.getElementById('scoreWins'), scoreLossesEl = document.getElementById('scoreLosses'), scoreDrawsEl = document.getElementById('scoreDraws'), streakBadge = document.getElementById('streakBadge');
+      const reel1 = document.getElementById('reel1'), reel2 = document.getElementById('reel2'), reel3 = document.getElementById('reel3'), slotResult = document.getElementById('slotResult'), btnSpin = document.getElementById('btnSpin');
+      const adminSpeakInput = document.getElementById('adminSpeakInput'), adminSetLevelInput = document.getElementById('adminSetLevelInput'), adminSetCoinsInput = document.getElementById('adminSetCoinsInput');
+      const allActionBtns = document.querySelectorAll('#actionsRow .btn');
+
+      // ==================== ДОСТИЖЕНИЯ ====================
+      function getAchievementCount() { return Object.values(state.achievements).filter(v => v).length; }
+      function updateAchievementsModal() {
+          const count = getAchievementCount(), total = 4, pct = Math.round((count / total) * 100);
+          document.getElementById('achProgressText').textContent = t('achProgress', {count, total, pct});
+          document.querySelectorAll('#modalAchievements .shop-item').forEach(item => {
+              const achId = item.dataset.ach, statusEl = item.querySelector('.ach-status');
+              if (state.achievements[achId]) { statusEl.textContent = '✅'; statusEl.style.color = '#6bcb77'; }
+              else { statusEl.textContent = '❌'; statusEl.style.color = '#e94560'; }
+          });
+      }
+      function checkAllAchievements() {
+          if (!state.allAchievementsUnlocked && getAchievementCount() === 4) {
+              state.allAchievementsUnlocked = true; allAchievementsSound();
+              say(t('sayAllAch'), 4000); updateBgButtons(); saveGame();
+          }
+      }
+      function unlockAchievement(id) {
+          if (state.achievements[id]) return;
+          state.achievements[id] = true; achievementSound();
+          const names = { anniversary: t('achAnniversary'), gourmet: t('achGourmet'), firstSpin: t('achFirstSpin'), gambler: t('achGambler') };
+          say(t('sayAch', {name: names[id] || id}), 3000); checkAllAchievements(); saveGame();
+      }
+      function checkAchievements() {
+          if (state.totalFeeds >= 50) unlockAchievement('gourmet');
+          if (state.totalSpins >= 10) unlockAchievement('gambler');
+          if (state.coins >= 10) unlockAchievement('anniversary');
+      }
+      function adminGetAllAchievements() { Object.keys(state.achievements).forEach(id => { state.achievements[id] = true; }); achievementSound(); checkAllAchievements(); say(t('sayAllAchAdmin')); saveGame(); }
+      function updateBgButtons() {
+          if (state.allAchievementsUnlocked) {
+              bgButtonsRow.innerHTML = `<div style="display:flex; gap:6px; justify-content:center; flex-wrap:wrap;"><button class="btn primary" id="btnPlayGame">${t('btnPlayGame')}</button><button class="btn primary" id="btnFreeBg">${t('btnFreeBg')}</button></div>`;
+              document.getElementById('btnPlayGame').addEventListener('click', openGame);
+              document.getElementById('btnFreeBg').addEventListener('click', freeBgChange);
+              btnChangeBg.style.display = 'none';
+          } else {
+              bgButtonsRow.innerHTML = `<button class="btn primary" id="btnChangeBg">${t('btnChangeBg')}</button>`;
+              document.getElementById('btnChangeBg').addEventListener('click', openGame);
+          }
+      }
+      function freeBgChange() {
+          if (state.isDead) return;
+          const colors = ['#1a1a2e','#0f3460','#2d1b4e','#1b4332','#3d1e1e','#1a1a1a','#ff6b6b','#ffd93d','#6bcb77','#ff8c42','#a18cd1'];
+          const color = colors[Math.floor(Math.random() * colors.length)];
+          document.body.style.background = color; state.bgColor = color;
+          say(t('sayNewBg')); setEmotion('happy'); saveGame();
+          setTimeout(() => { if (state.emotion === 'happy') setEmotion('neutral'); }, 2000);
+      }
+      function openGame() {
+          if (state.isDead) return;
+          if (!state.allAchievementsUnlocked && (state.hunger < 50 || state.happy < 50 || state.energy < 50)) { say(t('warningLow')); return; }
+          resetGame(); modalGame.classList.add('active'); gameActive = true;
+          setEmotion('neutral'); say(t('sayGame')); updateScoreboard();
+      }
+
+      // ==================== ПРИМЕНЕНИЕ ВИЗУАЛОВ ====================
+      function applyHat() {
+          const activeHat = Object.keys(state.shopItems).find(id => state.shopItems[id].category === 'hats' && state.shopItems[id].active);
+          if (activeHat) { const item = state.shopItems[activeHat]; petHat.style.display = 'block'; petHat.textContent = item.emoji || '🎩'; petHat.style.top = '5px'; petHat.style.left = '50%'; petHat.style.transform = 'translateX(-50%)'; }
+          else { petHat.style.display = 'none'; }
+      }
+      let effectsInterval = null;
+      function applyEffects() {
+          if (effectsInterval) clearInterval(effectsInterval);
+          petEffects.innerHTML = '';
+          const hasStars = state.shopItems.effect_stars?.active, hasHearts = state.shopItems.effect_hearts?.active, hasAura = state.shopItems.effect_aura?.active;
+          if (hasStars) {
+              const starPositions = [{ top: '10%', left: '10%' }, { top: '5%', left: '80%' }, { top: '70%', left: '5%' }, { top: '75%', left: '85%' }];
+              starPositions.forEach(pos => {
+                  const star = document.createElement('span'); star.className = 'effect-star'; star.textContent = '✨';
+                  star.style.left = pos.left; star.style.top = pos.top; star.style.animationDuration = (3 + Math.random() * 2) + 's';
+                  star.style.animationDelay = Math.random() * 2 + 's'; petEffects.appendChild(star);
+              });
+          }
+          if (hasHearts) {
+              const heartInterval = setInterval(() => {
+                  if (!state.shopItems.effect_hearts?.active || state.isDead) return;
+                  const heart = document.createElement('span'); heart.className = 'effect-heart';
+                  heart.textContent = ['💕','❤️','💗'][Math.floor(Math.random()*3)];
+                  heart.style.left = (10 + Math.random() * 80) + '%'; heart.style.bottom = '0';
+                  heart.style.animationDuration = (3 + Math.random() * 2) + 's'; petEffects.appendChild(heart);
+                  setTimeout(() => heart.remove(), 5000);
+              }, 1200);
+          }
+          if (hasAura) { petEl.style.boxShadow = '0 8px 28px rgba(255,107,157,0.45), inset 0 -14px 18px rgba(0,0,0,0.2), inset 0 8px 18px rgba(255,255,255,0.2), 0 0 30px rgba(100, 200, 255, 0.6), 0 0 60px rgba(100, 200, 255, 0.3)'; }
+          else { petEl.style.boxShadow = '0 8px 28px rgba(255,107,157,0.45), inset 0 -14px 18px rgba(0,0,0,0.2), inset 0 8px 18px rgba(255,255,255,0.2)'; }
+      }
+      function applySkin() {
+          const activeSkin = Object.keys(state.shopItems).find(id => state.shopItems[id].category === 'skins' && state.shopItems[id].active);
+          if (activeSkin && state.shopItems[activeSkin].pattern) { petEl.style.background = state.shopItems[activeSkin].pattern; }
+          else { petEl.style.background = ''; }
+      }
+      function applyBackground() {
+          const activeBg = Object.keys(state.shopItems).find(id => state.shopItems[id].category === 'backgrounds' && state.shopItems[id].active);
+          if (activeBg && state.shopItems[activeBg].bg) { document.body.style.background = state.shopItems[activeBg].bg; }
+          else { document.body.style.background = state.bgColor; }
+      }
+      function applyAllVisuals() { updateCubeVisibility(); updateToyButtonVisibility(); applySkin(); applyBackground(); applyHat(); applyEffects(); updateCoinTimerSpeed(); }
+
+      // ==================== DVD КУБИК ====================
+      let dvdAnimationId = null, dvdX = 0, dvdY = 0, dvdSpeedX = 1.8, dvdSpeedY = 1.3;
+      const dvdColors = ['#ff6b9d', '#ffc93c', '#6bcb77', '#4d96ff', '#ff8c42', '#a18cd1', '#ff4757'];
+      function updateCubeVisibility() { if (state.shopItems.cube.active && !state.isDead) { dvdCube.classList.add('active'); if (!dvdAnimationId) startDvdAnimation(); } else { dvdCube.classList.remove('active'); stopDvdAnimation(); } }
+      function startDvdAnimation() {
+          if (dvdAnimationId) return;
+          dvdX = Math.random() * (window.innerWidth - 50); dvdY = Math.random() * (window.innerHeight - 50);
+          dvdCube.style.background = dvdColors[Math.floor(Math.random() * dvdColors.length)];
+          function animate() {
+              if (!state.shopItems.cube.active || state.isDead) { stopDvdAnimation(); return; }
+              dvdX += dvdSpeedX; dvdY += dvdSpeedY;
+              if (dvdX <= 0 || dvdX + 50 >= window.innerWidth) { dvdSpeedX *= -1; dvdCube.style.background = dvdColors[Math.floor(Math.random() * dvdColors.length)]; dvdX = dvdX <= 0 ? 0 : window.innerWidth - 50; }
+              if (dvdY <= 0 || dvdY + 50 >= window.innerHeight) { dvdSpeedY *= -1; dvdCube.style.background = dvdColors[Math.floor(Math.random() * dvdColors.length)]; dvdY = dvdY <= 0 ? 0 : window.innerHeight - 50; }
+              dvdCube.style.left = dvdX + 'px'; dvdCube.style.top = dvdY + 'px';
+              dvdAnimationId = requestAnimationFrame(animate);
+          }
+          dvdAnimationId = requestAnimationFrame(animate);
+      }
+      function stopDvdAnimation() { if (dvdAnimationId) { cancelAnimationFrame(dvdAnimationId); dvdAnimationId = null; } }
+      function updateToyButtonVisibility() { if (state.shopItems.toy.active && !state.isDead) { soundToyBtn.classList.add('active'); } else { soundToyBtn.classList.remove('active'); } }
+      soundToyBtn.addEventListener('click', () => { if (!state.shopItems.toy.active || state.isDead) return; toyClickSound(); soundToyBtn.style.transform = 'scale(0.85)'; setTimeout(() => { soundToyBtn.style.transform = ''; }, 150); });
+
+      // ==================== МАГАЗИН ====================
+      const shopCategories = {
+          hats: { title: '🎩 Шляпы', titleEn: '🎩 Hats', desc: 'Меняют внешний вид питомца', descEn: 'Change pet appearance' },
+          skins: { title: '🌈 Скины', titleEn: '🌈 Skins', desc: 'Перекрашивают питомца', descEn: 'Repaint pet' },
+          effects: { title: '💫 Эффекты', titleEn: '💫 Effects', desc: 'Звёздочки, сердечки, аура', descEn: 'Stars, hearts, aura' },
+          boosts: { title: '⏫ Ускорители', titleEn: '⏫ Boosts', desc: 'Ускоряют таймер монет', descEn: 'Speed up coin timer' },
+          backgrounds: { title: '🏝️ Фоны', titleEn: '🏝️ Backgrounds', desc: 'Сменные фоны (по 10 💰)', descEn: 'Backgrounds (10 💰 each)' },
+          misc: { title: '🎲 Разное', titleEn: '🎲 Misc', desc: 'DVD-кубик и звуковая кнопка', descEn: 'DVD cube & sound button' }
+      };
+      function renderShop(category) {
+          state.activeTab = category || 'hats';
+          const cat = shopCategories[state.activeTab];
+          document.getElementById('shopSubtitle').textContent = currentLang === 'ru' ? cat.desc : (cat.descEn || cat.desc);
+          document.querySelectorAll('.shop-tab').forEach(tab => { tab.classList.toggle('active', tab.dataset.tab === state.activeTab); });
+          const items = Object.entries(state.shopItems).filter(([id, item]) => item.category === state.activeTab);
+          shopContainer.innerHTML = items.map(([id, item]) => {
+              const owned = item.owned, active = item.active;
+              let btnText, btnAction, btnDisabled = false;
+              const itemName = currentLang === 'ru' ? item.name : (item.nameEn || item.name);
+              if (!owned) { btnText = t('buyBtn', {price: item.price}); btnAction = 'buy'; if (state.coins < item.price) btnDisabled = true; }
+              else if (active) { btnText = t('removeBtn'); btnAction = 'deactivate'; }
+              else { btnText = t('wearBtn'); btnAction = 'activate'; }
+              return `<div class="shop-item"><div class="shop-item-info"><div class="shop-item-name">${item.emoji ? item.emoji + ' ' : ''}${itemName}</div><div class="shop-item-desc">${currentLang === 'ru' ? item.desc : (item.descEn || item.desc)}</div>${!owned ? `<div class="shop-item-price">💰 ${item.price} ${currentLang === 'ru' ? 'монет' : 'coins'}</div>` : ''}</div><button class="btn shop-action-btn" data-id="${id}" data-action="${btnAction}" ${btnDisabled ? 'disabled' : ''}>${btnText}</button></div>`;
+          }).join('') || `<div style="color:rgba(255,255,255,0.5); padding:20px;">${currentLang === 'ru' ? 'В этой категории пока нет предметов' : 'No items in this category yet'}</div>`;
+          document.querySelectorAll('.shop-action-btn').forEach(btn => { btn.addEventListener('click', (e) => { handleShopAction(btn.dataset.id, btn.dataset.action); }); });
+      }
+      function handleShopAction(id, action) {
+          if (state.isDead) return;
+          const item = state.shopItems[id]; if (!item) return;
+          const itemName = currentLang === 'ru' ? item.name : (item.nameEn || item.name);
+          if (action === 'buy') {
+              if (state.coins < item.price) { say(t('sayNoCoins')); return; }
+              state.coins -= item.price; item.owned = true; item.active = true;
+              const exclusiveCategories = ['hats', 'skins', 'effects', 'backgrounds'];
+              if (exclusiveCategories.includes(item.category)) { Object.keys(state.shopItems).forEach(key => { if (key !== id && state.shopItems[key].category === item.category) state.shopItems[key].active = false; }); }
+              state.buyCount++; updateCoinsUI(); applyAllVisuals(); renderShop(state.activeTab);
+              say(t('sayBuy', {name: itemName})); checkAchievements(); checkTaskCompletion(); saveGame();
+          } else if (action === 'deactivate') { item.active = false; applyAllVisuals(); renderShop(state.activeTab); saveGame(); }
+          else if (action === 'activate') {
+              const exclusiveCategories = ['hats', 'skins', 'effects', 'backgrounds'];
+              if (exclusiveCategories.includes(item.category)) { Object.keys(state.shopItems).forEach(key => { if (key !== id && state.shopItems[key].category === item.category) state.shopItems[key].active = false; }); }
+              item.active = true; applyAllVisuals(); renderShop(state.activeTab); saveGame();
+          }
+      }
+      function updateCoinTimerSpeed() { if (state.shopItems.boost_coin?.active) { state.coinTimerSeconds = Math.min(state.coinTimerSeconds, 180); } }
+      function resetShopItems() { state.shopItems = getInitialShopItems(); applyAllVisuals(); if (modalShop.classList.contains('active')) renderShop(state.activeTab); }
+      function adminGetAllItems() { Object.keys(state.shopItems).forEach(id => { state.shopItems[id].owned = true; }); applyAllVisuals(); renderShop(state.activeTab); say(t('sayAllItems')); saveGame(); }
+
+      // ==================== ОСТАЛЬНОЕ ====================
+      function openRenameModal() { if (state.isDead) return; if (state.coins < 10) { say(t('sayNeedCoins')); return; } renameInput.value = state.petName; renameFeedback.textContent = ''; modalRename.classList.add('active'); setTimeout(() => renameInput.focus(), 200); }
+      function confirmRename() {
+          const newName = renameInput.value.trim();
+          if (!newName) { renameFeedback.textContent = currentLang === 'ru' ? 'Введи имя!' : 'Enter a name!'; return; }
+          if (newName === state.petName) { renameFeedback.textContent = currentLang === 'ru' ? 'Это уже текущее имя!' : 'Already current name!'; return; }
+          if (!spendCoins(10)) { renameFeedback.textContent = currentLang === 'ru' ? '❌ Нужно 10 монет!' : '❌ Need 10 coins!'; return; }
+          state.petName = newName; petNameDisplay.textContent = newName;
+          renameFeedback.textContent = currentLang === 'ru' ? '✅ Имя сменено!' : '✅ Name changed!';
+          setEmotion('happy'); say(t('sayRenameOk', {name: newName})); saveGame();
+          setTimeout(() => { modalRename.classList.remove('active'); if (state.emotion === 'happy') setEmotion('neutral'); }, 1200);
+      }
+      let coinTimerInterval;
+      function updateCoinTimerUI() { const m = Math.floor(state.coinTimerSeconds/60), s = state.coinTimerSeconds%60; coinTimerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`; }
+      function startCoinTimer() { updateCoinTimerUI(); coinTimerInterval = setInterval(() => { if (!state.isDead) { state.coinTimerSeconds--; updateCoinTimerUI(); if(state.coinTimerSeconds <= 0) { addCoins(1); state.coinTimerSeconds = state.shopItems.boost_coin?.active ? 180 : 300; checkTaskCompletion(); } } }, 1000); }
+      function updateCoinsUI() { coinsCountEl.textContent = state.coins; btnBuyFood.disabled = state.coins<5||state.isDead; btnCasino.disabled = state.coins<1||state.isDead; btnRename.disabled = state.coins<10||state.isDead; btnSkipWithCoins.style.display = state.coins>=5?'inline-block':'none'; }
+      function addCoins(amount) { state.coins += amount; updateCoinsUI(); if(amount>0) say(t('sayCoins', {amount}) + (amount>1&&currentLang=='ru'?'ы':'') + (amount===1&&currentLang=='ru'?'а':'') + '! 🪙'); checkAchievements(); checkTaskCompletion(); saveGame(); }
+      function spendCoins(amount) { if(state.coins<amount) return false; state.coins-=amount; updateCoinsUI(); saveGame(); return true; }
+      function buyFood() { if(state.isDead) return; if(state.food>=state.maxFood){say(t('sayFoodEnough')); return;} if(!spendCoins(5)){say(t('sayNeed5Coins')); return;} state.food=Math.min(state.maxFood,state.food+2); updateStatsUI(); setEmotion('happy'); say(t('sayFoodEnough')); setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2500); }
+      function openCasino() { if(state.isDead) return; if(state.coins<1){say(t('sayNeed1Coin')); return;} slotResult.textContent=''; reel1.textContent='❓'; reel2.textContent='❓'; reel3.textContent='❓'; reel1.classList.remove('win-glow'); reel2.classList.remove('win-glow'); reel3.classList.remove('win-glow'); modalCasino.classList.add('active'); }
+      function spinSlots() {
+          if(state.slotSpinning) return; if(!spendCoins(1)){say(t('sayNeed1Coin')); return;}
+          state.slotSpinning=true; btnSpin.disabled=true; slotResult.textContent='';
+          state.totalSpins++; state.spinCount++;
+          if (state.totalSpins === 1) unlockAchievement('firstSpin');
+          checkAchievements(); checkTaskCompletion();
+          reel1.classList.remove('win-glow'); reel2.classList.remove('win-glow'); reel3.classList.remove('win-glow');
+          reel1.classList.add('spinning'); reel2.classList.add('spinning'); reel3.classList.add('spinning');
+          const symbols = generateSlotSymbols();
+          setTimeout(()=>{reel1.classList.remove('spinning'); reel1.textContent=symbols[0]; slotTickSound();},600);
+          setTimeout(()=>{reel2.classList.remove('spinning'); reel2.textContent=symbols[1]; slotTickSound();},900);
+          setTimeout(()=>{reel3.classList.remove('spinning'); reel3.textContent=symbols[2]; slotTickSound(); checkSlotResult(symbols); state.slotSpinning=false; btnSpin.disabled=false;},1200);
+      }
+      function generateSlotSymbols() { const roll=Math.random(); if(roll<0.05) return ['W','I','N']; if(roll<0.15){ const s=slotSymbols[Math.floor(Math.random()*slotSymbols.length)]; return [s,s,s]; } let s; do{ s=[ slotSymbols[Math.floor(Math.random()*slotSymbols.length)], slotSymbols[Math.floor(Math.random()*slotSymbols.length)], slotSymbols[Math.floor(Math.random()*slotSymbols.length)] ]; }while(s[0]=='W'&&s[1]=='I'&&s[2]=='N'||(s[0]===s[1]&&s[1]===s[2])); return s; }
+      function checkSlotResult(symbols) { const[a,b,c]=symbols; if(a=='W'&&b=='I'&&c=='N'){ slotResult.textContent='🌟 JACKPOT! W-I-N! +5💰'; slotResult.style.color='#ffd700'; reel1.classList.add('win-glow'); reel2.classList.add('win-glow'); reel3.classList.add('win-glow'); addCoins(5); setEmotion('happy'); say(t('sayJackpot')); slotJackpotSound(); return; } if(a===b&&b===c){ slotResult.textContent=`🎯 ${currentLang==='ru'?'Три':'Three'} ${a}! +2💰`; slotResult.style.color='#6bcb77'; reel1.classList.add('win-glow'); reel2.classList.add('win-glow'); reel3.classList.add('win-glow'); addCoins(2); setEmotion('happy'); say(t('sayWinSlot')); slotWinSound(); return; } slotResult.textContent=currentLang=='ru'?'😔 Не повезло...':'😔 Bad luck...'; slotResult.style.color='#e94560'; setEmotion('sad'); slotLoseSound(); setTimeout(()=>{if(state.emotion=='sad')setEmotion('neutral');},2000); }
+      function skipMathWithCoins() { if(!spendCoins(5)){mathFeedback.textContent=currentLang=='ru'?'❌ Нужно 5 монет!':'❌ Need 5 coins!';return;} mathFeedback.textContent=currentLang=='ru'?'🪙 Оплачено! +2 еды!':'🪙 Paid! +2 food!'; state.food=Math.min(state.maxFood,state.food+2); updateStatsUI(); setEmotion('happy'); say(t('saySkipCoins')); setTimeout(()=>{modalMath.classList.remove('active'); if(state.emotion=='happy')setEmotion('neutral');},1000); }
+      const adminKeySequence = [];
+      document.addEventListener('keydown', (e) => { adminKeySequence.push(e.key.toUpperCase()); if(adminKeySequence.length>6) adminKeySequence.shift(); if(adminKeySequence.join('')==='CAMERA') { openAdminMenu(); adminKeySequence.length=0; } });
+      function openAdminMenu() { modalAdmin.classList.add('active'); adminSpeakInput.value=''; adminSetLevelInput.value=''; adminSetCoinsInput.value=''; say(t('sayAdmin')); }
+      function adminAddCoin() { addCoins(1); } function adminRemoveCoin() { if(state.coins>0){state.coins--;updateCoinsUI();saveGame();} }
+      function adminAddFood() { state.food=Math.min(state.maxFood,state.food+2); updateStatsUI(); saveGame(); }
+      function adminHealAll() { state.hunger=100; state.happy=100; state.energy=100; updateStatsUI(); updateButtonsByStats(); setEmotion('happy'); saveGame(); setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2000); }
+      function adminKill() { state.hunger=0; state.happy=0; state.energy=0; updateStatsUI(); checkDeath(); }
+      function adminFreeBg() { const colors=['#1a1a2e','#0f3460','#2d1b4e','#1b4332','#3d1e1e','#1a1a1a','#ff6b6b','#ffd93d','#6bcb77']; const color=colors[Math.floor(Math.random()*colors.length)]; document.body.style.background=color; state.bgColor=color; saveGame(); }
+      function adminSpeak() { const text=adminSpeakInput.value.trim(); if(text){ say(text,3000); adminSpeakInput.value=''; modalAdmin.classList.remove('active'); } }
+      function adminSetLevelFromInput() { const val = parseInt(adminSetLevelInput.value); if (isNaN(val) || val < 1) return; adminSetLevel(val); adminSetLevelInput.value = ''; }
+      function adminSetCoinsFromInput() { const val = parseInt(adminSetCoinsInput.value); if (isNaN(val) || val < 0) return; adminSetCoins(val); adminSetCoinsInput.value = ''; }
+      function checkDeath() { if(state.hunger<=0 && state.happy<=0 && state.energy<=0) killPet(); }
+      function killPet() {
+          state.isDead=true; state.hunger=0; state.happy=0; state.energy=0; updateStatsUI();
+          petEl.classList.add('dead-pet'); petEl.style.animation='none'; petCard.classList.add('dead');
+          allActionBtns.forEach(b=>b.disabled=true); btnChangeBg.disabled=true; btnRename.disabled=true;
+          btnRestart.style.display='inline-block'; warningMsg.textContent=`💀 ${state.petName} ${currentLang=='ru'?'умер':'died'}...`; warningMsg.style.color='#e94560';
+          setEmotion(''); say(t('sayDead')); clearIntervals(); resetShopItems(); saveGame();
+      }
+      function restartGame() {
+          state.isDead=false; state.hunger=70; state.happy=60; state.energy=80; state.food=3; state.coins=0;
+          state.emotion='neutral'; state.cooldowns.play=0; state.cooldowns.sleep=0; state.coinTimerSeconds=300;
+          state.totalFeeds=0; state.totalSpins=0;
+          state.achievements = { anniversary: false, gourmet: false, firstSpin: false, gambler: false };
+          state.allAchievementsUnlocked = false; state.level = 1;
+          state.feedCount = 0; state.spinCount = 0; state.tictactoeWinCount = 0;
+          state.teachCount = 0; state.playCount = 0; state.sleepCount = 0;
+          state.mathSolvedCount = 0; state.buyCount = 0; state.bgChangeCount = 0;
+          assignNewTask(); updateBgButtons();
+          petEl.classList.remove('dead-pet'); petEl.style.animation='float 3s ease-in-out infinite'; petCard.classList.remove('dead');
+          setEmotion('neutral'); allActionBtns.forEach(b=>b.disabled=false); btnRename.disabled=false;
+          btnRestart.style.display='none'; warningMsg.textContent=''; warningMsg.style.color='#ff9f43';
+          Object.keys(cooldownIntervals).forEach(k=>{clearInterval(cooldownIntervals[k]); const btn=cooldownElements[k]; if(btn){btn.classList.remove('on-cooldown'); const tb=btn.querySelector('.cooldown-timer'); if(tb)tb.remove();}});
+          state.cooldowns.play=0; state.cooldowns.sleep=0; resetShopItems();
+          updateStatsUI(); updateCoinsUI(); updateCoinTimerUI(); updateButtonsByStats(); updateLevelPanel();
+          say(t('sayRestart')); startAllIntervals(); deleteSave();
+      }
+      function updateButtonsByStats() { if(state.isDead) return; const anyBelow50 = state.hunger<50||state.happy<50||state.energy<50; if(anyBelow50 && !state.allAchievementsUnlocked){ const bgBtn = document.querySelector('#bgButtonsRow .btn'); if(bgBtn) bgBtn.disabled=true; warningMsg.textContent=t('warningLow'); } else { const bgBtn = document.querySelector('#bgButtonsRow .btn'); if(bgBtn) bgBtn.disabled=false; warningMsg.textContent=''; } }
+      function updateScoreboard() {
+          scoreWinsEl.textContent=state.wins; scoreLossesEl.textContent=state.losses; scoreDrawsEl.textContent=state.draws;
+          if(state.currentStreak>=3){ streakBadge.classList.remove('hidden','cold'); streakBadge.textContent=`🔥 ${currentLang=='ru'?'Стрик побед':'Win streak'}: ${state.currentStreak}`; }
+          else if(state.currentStreak<=-3){ streakBadge.classList.remove('hidden'); streakBadge.classList.add('cold'); streakBadge.textContent=`❄️ ${currentLang=='ru'?'Стрик поражений':'Lose streak'}: ${Math.abs(state.currentStreak)}`; }
+          else if(state.currentStreak>0){ streakBadge.classList.remove('hidden','cold'); streakBadge.textContent=`🔥 ${currentLang=='ru'?'Стрик':'Streak'}: ${state.currentStreak}`; }
+          else if(state.currentStreak<0){ streakBadge.classList.remove('hidden'); streakBadge.classList.add('cold'); streakBadge.textContent=`❄️ ${currentLang=='ru'?'Стрик':'Streak'}: ${Math.abs(state.currentStreak)}`; }
+          else{ streakBadge.classList.add('hidden'); }
+      }
+      const cooldownIntervals={}, cooldownElements={play:document.getElementById('btnPlay'),sleep:document.getElementById('btnSleep')}, cooldownDurations={play:8,sleep:15};
+      function startCooldown(action) { if(state.isDead) return; state.cooldowns[action]=cooldownDurations[action]; const btn=cooldownElements[action]; btn.classList.add('on-cooldown'); let tb=btn.querySelector('.cooldown-timer'); if(!tb){tb=document.createElement('div');tb.className='cooldown-timer';btn.appendChild(tb);} tb.style.width='100%'; if(cooldownIntervals[action])clearInterval(cooldownIntervals[action]); cooldownIntervals[action]=setInterval(()=>{state.cooldowns[action]--; const pct=(state.cooldowns[action]/cooldownDurations[action])*100; if(tb)tb.style.width=pct+'%'; if(state.cooldowns[action]<=0){clearInterval(cooldownIntervals[action]);btn.classList.remove('on-cooldown');if(tb)tb.remove();state.cooldowns[action]=0;}},1000); }
+      function isOnCooldown(action){return state.cooldowns[action]>0;}
+      function updateStatsUI() { hungerBar.style.width=state.hunger+'%'; happyBar.style.width=state.happy+'%'; energyBar.style.width=state.energy+'%'; hungerVal.textContent=Math.round(state.hunger)+'%'; happyVal.textContent=Math.round(state.happy)+'%'; energyVal.textContent=Math.round(state.energy)+'%'; foodCountEl.textContent=state.food; }
+      function setEmotion(emotion) { if(state.isDead){ petEl.className='pet dead-pet'; return; } state.emotion=emotion; petEl.className='pet '+emotion; saveGame(); }
+      function say(text,duration=2000){ if(state.speechTimer)clearTimeout(state.speechTimer); speechBubble.textContent=text; speechBubble.classList.add('show'); state.speechTimer=setTimeout(()=>{speechBubble.classList.remove('show');},duration); }
+      function feed() { if(state.isDead) return; if(state.food<=0){say(t('sayNoFood'));setEmotion('sad');return;} if(state.hunger>=100){say(t('sayFull'));return;} state.food--; state.hunger=Math.min(100,state.hunger+22); state.energy=Math.min(100,state.energy+5); state.totalFeeds++; state.feedCount++; checkAchievements(); checkTaskCompletion(); setEmotion('happy'); say(t('sayFed')); updateStatsUI(); updateButtonsByStats(); setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2500); }
+      function playWith() { if(state.isDead) return; if(isOnCooldown('play')){say(`${currentLang=='ru'?'Подожди':'Wait'} ${state.cooldowns.play}${currentLang=='ru'?'с':'s'}... ⏳`);return;} if(state.energy<15){say(t('sayTired'));setEmotion('sad');return;} state.happy=Math.min(100,state.happy+18); state.energy=Math.max(0,state.energy-12); state.hunger=Math.max(0,state.hunger-6); state.playCount++; setEmotion('happy'); say(t('sayPlay')[Math.floor(Math.random()*4)]); startCooldown('play'); updateStatsUI(); updateButtonsByStats(); checkDeath(); checkTaskCompletion(); setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2500); }
+      function sleep() { if(state.isDead) return; if(isOnCooldown('sleep')){say(`${currentLang=='ru'?'Спать можно через':'Sleep in'} ${state.cooldowns.sleep}${currentLang=='ru'?'с':'s'}... 💤`);return;} state.energy=Math.min(100,state.energy+45); state.hunger=Math.max(0,state.hunger-8); state.sleepCount++; say(t('saySleep'),2500); setEmotion('neutral'); petEl.style.animation='float 6s ease-in-out infinite'; startCooldown('sleep'); updateStatsUI(); updateButtonsByStats(); checkDeath(); checkTaskCompletion(); setTimeout(()=>{petEl.style.animation='float 3s ease-in-out infinite';},3000); }
+      function teach() { if(state.isDead) return; const newWord=prompt(currentLang=='ru'?'Введи слово, которому хочешь научить Космо:':'Enter a word to teach Cosmo:'); if(!newWord||newWord.trim()=='') return; const word=newWord.trim().toLowerCase(); if(vocabulary.includes(word)){say(t('sayKnowWord', {word}));return;} vocabulary.push(word); state.teachCount++; state.happy=Math.min(100,state.happy+5); setEmotion('happy'); say(t('sayTeach', {word})); updateStatsUI(); updateButtonsByStats(); checkTaskCompletion(); setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2500); }
+      let passiveDecayInterval, randomPhraseInterval;
+      function passiveDecay() { if(state.isDead) return; state.hunger=Math.max(0,state.hunger-0.9); state.happy=Math.max(0,state.happy-0.5); state.energy=Math.max(0,state.energy-0.3); updateStatsUI(); updateButtonsByStats(); if(state.hunger<15){setEmotion('angry'); if(Math.random()<0.3)say(t('sayHungry'));} else if(state.happy<15){setEmotion('sad'); if(Math.random()<0.3)say(t('saySad'));} else if(state.energy<15){setEmotion('sad'); if(Math.random()<0.3)say(t('sayTired'));} else if(state.emotion!=='happy'){setEmotion('neutral');} checkDeath(); }
+      function randomPhrases() { if(state.isDead) return; if(state.emotion=='neutral' && Math.random()<0.22 && !speechBubble.classList.contains('show')){ const phrases=[...t('phrases'),...vocabulary.filter(w=>w.length<8).map(w=>w+'!'),`${currentLang=='ru'?'Я':'I am'} ${state.petName}!`]; say(phrases[Math.floor(Math.random()*phrases.length)],1800); } }
+      function startAllIntervals() { passiveDecayInterval=setInterval(passiveDecay,4500); randomPhraseInterval=setInterval(randomPhrases,16000); startCoinTimer(); autoSaveInterval = setInterval(saveGame, 5000); }
+      function clearIntervals() { if(passiveDecayInterval)clearInterval(passiveDecayInterval); if(randomPhraseInterval)clearInterval(randomPhraseInterval); if(coinTimerInterval)clearInterval(coinTimerInterval); Object.keys(cooldownIntervals).forEach(k=>clearInterval(cooldownIntervals[k])); if(effectsInterval)clearInterval(effectsInterval); if(autoSaveInterval)clearInterval(autoSaveInterval); }
+      function generateMathProblem() { const ops=['+','-','*']; const op=ops[Math.floor(Math.random()*ops.length)]; let a,b,answer; switch(op){ case'+': a=Math.floor(Math.random()*40)+5; b=Math.floor(Math.random()*40)+5; answer=a+b; break; case'-': a=Math.floor(Math.random()*50)+20; b=Math.floor(Math.random()*a); answer=a-b; break; case'*': a=Math.floor(Math.random()*12)+2; b=Math.floor(Math.random()*12)+2; answer=a*b; break; } state.currentMath={a,b,op,answer}; mathExampleEl.textContent=`${a} ${op} ${b} = ?`; mathInput.value=''; mathFeedback.textContent=''; btnSkipWithCoins.style.display=state.coins>=5?'inline-block':'none'; mathInput.focus(); }
+      function openMathModal() { if(state.isDead) return; if(state.food>=state.maxFood){say(t('sayFoodMax'));return;} generateMathProblem(); modalMath.classList.add('active'); setTimeout(()=>mathInput.focus(),200); }
+      function checkMathAnswer() { const ua=parseInt(mathInput.value); if(isNaN(ua)){mathFeedback.textContent=currentLang=='ru'?'Введи число!':'Enter a number!';return;} if(ua===state.currentMath.answer){ mathFeedback.textContent=currentLang=='ru'?'✅ Правильно! +2 еды!':'✅ Correct! +2 food!'; state.food=Math.min(state.maxFood,state.food+2); state.mathSolvedCount++; updateStatsUI(); setEmotion('happy'); say(t('sayMathOk')); checkTaskCompletion(); setTimeout(()=>{modalMath.classList.remove('active'); if(state.emotion=='happy')setEmotion('neutral');},1000); } else { mathFeedback.textContent=`${currentLang=='ru'?'❌ Неверно! Правильно:':'❌ Wrong! Correct:'} ${state.currentMath.answer}`; say(t('sayMathFail')); setEmotion('sad'); setTimeout(()=>{if(state.emotion=='sad')setEmotion('neutral');},1800); setTimeout(generateMathProblem,1200); } }
+
+      // ==================== КРЕСТИКИ-НОЛИКИ (ИСПРАВЛЕНО) ====================
+      let gameBoard=['','','','','','','','',''], gameActive=false;
+      let playerTurn = true; // Флаг, чей сейчас ход
+      let gameLocked = false; // Блокировка на время хода ИИ
+      const playerSymbol='✖', aiSymbol='◯';
+
+      function resetGame() {
+          gameBoard=['','','','','','','','',''];
+          gameActive=true;
+          playerTurn = true;
+          gameLocked = false;
+          document.querySelectorAll('.cell').forEach(c=>{c.textContent='';c.classList.remove('taken','win');});
+          document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));
+          colorPickerRow.style.display='none';
+          gameStatus.textContent=t('gameStatus');
+          document.getElementById('modalSubtitle').textContent=t('gameSubtitle');
+      }
+
+      function checkWinner(board){
+          const wins=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+          for(const[a,b,c] of wins){
+              if(board[a]&&board[a]===board[b]&&board[a]===board[c]) return{winner:board[a],line:[a,b,c]};
+          }
+          if(board.every(c=>c!=='')) return{winner:'draw',line:[]};
+          return null;
+      }
+
+      function minimax(board,isMax){
+          const r=checkWinner(board);
+          if(r){
+              if(r.winner===aiSymbol)return 10;
+              if(r.winner===playerSymbol)return -10;
+              return 0;
+          }
+          if(isMax){
+              let best=-Infinity;
+              for(let i=0;i<9;i++){
+                  if(board[i]==''){
+                      board[i]=aiSymbol;
+                      best=Math.max(best,minimax(board,false));
+                      board[i]='';
+                  }
+              }
+              return best;
+          } else {
+              let best=Infinity;
+              for(let i=0;i<9;i++){
+                  if(board[i]==''){
+                      board[i]=playerSymbol;
+                      best=Math.min(best,minimax(board,true));
+                      board[i]='';
+                  }
+              }
+              return best;
+          }
+      }
+
+      function aiMove(){
+          let bestScore=-Infinity,bestMove=-1;
+          for(let i=0;i<9;i++){
+              if(gameBoard[i]==''){
+                  gameBoard[i]=aiSymbol;
+                  const score=minimax(gameBoard,false);
+                  gameBoard[i]='';
+                  if(score>bestScore){bestScore=score;bestMove=i;}
+              }
+          }
+          if(Math.random()<0.2){
+              const empty=gameBoard.map((v,i)=>v==''?i:-1).filter(i=>i>=0);
+              if(empty.length>0) bestMove=empty[Math.floor(Math.random()*empty.length)];
+          }
+          if(bestMove>=0){
+              gameBoard[bestMove]=aiSymbol;
+              const cell=document.querySelector(`.cell[data-index="${bestMove}"]`);
+              if(cell){
+                  cell.textContent=aiSymbol;
+                  cell.classList.add('taken');
+              }
+              return true;
+          }
+          return false;
+      }
+
+      function endGame(result){
+          gameActive=false;
+          gameLocked = false;
+          document.querySelectorAll('.cell').forEach(c=>c.classList.add('taken'));
+          if(result.winner===playerSymbol){
+              state.wins++;
+              state.currentStreak=state.currentStreak>0?state.currentStreak+1:1;
+              state.tictactoeWinCount++;
+              gameStatus.textContent=t('gameStatusWin');
+              document.getElementById('modalSubtitle').textContent=currentLang=='ru'?'Победа! Заслужил новый фон!':'Victory! You earned a new BG!';
+              colorPickerRow.style.display='flex';
+              setEmotion('sad');
+              say(t('sayWin'));
+              if(result.line) result.line.forEach(i=>{document.querySelector(`.cell[data-index="${i}"]`)?.classList.add('win');});
+              checkTaskCompletion();
+              saveGame();
+          } else if(result.winner===aiSymbol){
+              state.losses++;
+              state.currentStreak=state.currentStreak<0?state.currentStreak-1:-1;
+              gameStatus.textContent=t('gameStatusLose');
+              document.getElementById('modalSubtitle').textContent=currentLang=='ru'?'Поражение... Попробуй ещё!':'Defeat... Try again!';
+              colorPickerRow.style.display='none';
+              setEmotion('happy');
+              say(t('sayLose')[Math.floor(Math.random()*3)]);
+              if(result.line) result.line.forEach(i=>{document.querySelector(`.cell[data-index="${i}"]`)?.classList.add('win');});
+              saveGame();
+          } else {
+              state.draws++;
+              state.currentStreak=0;
+              gameStatus.textContent=t('gameStatusDraw');
+              document.getElementById('modalSubtitle').textContent=currentLang=='ru'?'Ничья — без изменений':'Draw — no changes';
+              colorPickerRow.style.display='none';
+              say(t('sayDraw'));
+              saveGame();
+          }
+          updateScoreboard();
+          updateStatsUI();
+      }
+
+      function handleCellClick(index){
+          // ИСПРАВЛЕНИЕ: проверяем все условия блокировки
+          if(!gameActive || gameLocked || !playerTurn || gameBoard[index]!=='') return;
+
+          // Блокируем доску на время хода
+          gameLocked = true;
+          playerTurn = false;
+
+          gameBoard[index]=playerSymbol;
+          const cell = document.querySelector(`.cell[data-index="${index}"]`);
+          cell.textContent=playerSymbol;
+          cell.classList.add('taken');
+
+          const r=checkWinner(gameBoard);
+          if(r){
+              endGame(r);
+              return;
+          }
+
+          gameStatus.textContent=currentLang=='ru'?'ИИ думает...':'AI is thinking...';
+
+          setTimeout(()=>{
+              const moved = aiMove();
+              if (moved) {
+                  const r2=checkWinner(gameBoard);
+                  if(r2) {
+                      endGame(r2);
+                  } else {
+                      gameStatus.textContent=t('gameStatus');
+                      playerTurn = true;
+                      gameLocked = false;
+                  }
+              } else {
+                  // Если ИИ не смог походить (доска заполнена)
+                  const r2 = checkWinner(gameBoard);
+                  if (r2) endGame(r2);
+                  else {
+                      playerTurn = true;
+                      gameLocked = false;
+                  }
+              }
+          },350);
+      }
+
+      function applyBackgroundColor(color){
+          state.bgColor=color;
+          document.body.style.background=color;
+          state.bgChangeCount++;
+          say(t('sayNewColor'));
+          setEmotion('happy');
+          checkTaskCompletion();
+          saveGame();
+          setTimeout(()=>{if(state.emotion=='happy')setEmotion('neutral');},2000);
+      }
+
+      // ==================== ОБРАБОТЧИКИ ====================
+      document.getElementById('langBtn').addEventListener('click', toggleLanguage);
+      document.getElementById('btnFeed').addEventListener('click',feed);
+      document.getElementById('btnGetFood').addEventListener('click',openMathModal);
+      document.getElementById('btnBuyFood').addEventListener('click',buyFood);
+      document.getElementById('btnCasino').addEventListener('click',openCasino);
+      document.getElementById('btnPlay').addEventListener('click',playWith);
+      document.getElementById('btnSleep').addEventListener('click',sleep);
+      document.getElementById('btnTeach').addEventListener('click',teach);
+      document.getElementById('btnRestart').addEventListener('click',restartGame);
+      document.getElementById('btnRename').addEventListener('click',openRenameModal);
+      document.getElementById('btnConfirmRename').addEventListener('click',confirmRename);
+      document.getElementById('btnCloseRename').addEventListener('click',()=>modalRename.classList.remove('active'));
+      document.getElementById('btnSpin').addEventListener('click',spinSlots);
+      document.getElementById('btnCloseCasino').addEventListener('click',()=>modalCasino.classList.remove('active'));
+      document.getElementById('btnCloseAdmin').addEventListener('click',()=>modalAdmin.classList.remove('active'));
+      document.getElementById('btnShop').addEventListener('click',()=>{if(!state.isDead){renderShop('hats');modalShop.classList.add('active');}});
+      document.getElementById('btnCloseShop').addEventListener('click',()=>modalShop.classList.remove('active'));
+      document.getElementById('achievementsBtn').addEventListener('click',()=>{updateAchievementsModal();modalAchievements.classList.add('active');});
+      document.getElementById('btnCloseAchievements').addEventListener('click',()=>modalAchievements.classList.remove('active'));
+      shopTabs.addEventListener('click', (e) => { const tab = e.target.closest('.shop-tab'); if (tab) renderShop(tab.dataset.tab); });
+      document.getElementById('adminAddCoin').addEventListener('click',adminAddCoin);
+      document.getElementById('adminRemoveCoin').addEventListener('click',adminRemoveCoin);
+      document.getElementById('adminAddFood').addEventListener('click',adminAddFood);
+      document.getElementById('adminHealAll').addEventListener('click',adminHealAll);
+      document.getElementById('adminKill').addEventListener('click',adminKill);
+      document.getElementById('adminFreeBg').addEventListener('click',adminFreeBg);
+      document.getElementById('adminGetAllItems').addEventListener('click',adminGetAllItems);
+      document.getElementById('adminGetAllAchievements').addEventListener('click',adminGetAllAchievements);
+      document.getElementById('adminLevelUp').addEventListener('click',adminLevelUp);
+      document.getElementById('adminLevelDown').addEventListener('click',adminLevelDown);
+      document.getElementById('adminSetLevelBtn').addEventListener('click',adminSetLevelFromInput);
+      document.getElementById('adminSetCoinsBtn').addEventListener('click',adminSetCoinsFromInput);
+      document.getElementById('adminSpeakBtn').addEventListener('click',adminSpeak);
+      adminSpeakInput.addEventListener('keydown',(e)=>{if(e.key=='Enter')adminSpeak();});
+      adminSetLevelInput.addEventListener('keydown',(e)=>{if(e.key=='Enter')adminSetLevelFromInput();});
+      adminSetCoinsInput.addEventListener('keydown',(e)=>{if(e.key=='Enter')adminSetCoinsFromInput();});
+      renameInput.addEventListener('keydown',(e)=>{if(e.key=='Enter')confirmRename();});
+      document.getElementById('btnCloseGame').addEventListener('click',()=>{modalGame.classList.remove('active');gameActive=false;gameLocked=false;});
+      document.getElementById('btnResetGame').addEventListener('click',resetGame);
+      boardEl.addEventListener('click',(e)=>{const cell=e.target.closest('.cell'); if(cell)handleCellClick(parseInt(cell.dataset.index));});
+      colorPickerRow.addEventListener('click',(e)=>{const dot=e.target.closest('.color-dot'); if(dot&&!gameActive&&(gameStatus.textContent.includes('выиграл')||gameStatus.textContent.includes('won'))){document.querySelectorAll('.color-dot').forEach(d=>d.classList.remove('selected'));dot.classList.add('selected');applyBackgroundColor(dot.dataset.color);setTimeout(()=>modalGame.classList.remove('active'),600);}});
+      document.getElementById('btnCheckMath').addEventListener('click',checkMathAnswer);
+      document.getElementById('btnSkipMath').addEventListener('click',()=>{modalMath.classList.remove('active');say(t('saySkipMath'));});
+      document.getElementById('btnSkipWithCoins').addEventListener('click',skipMathWithCoins);
+      mathInput.addEventListener('keydown',(e)=>{if(e.key=='Enter')checkMathAnswer();});
+      [modalGame,modalMath,modalCasino,modalAdmin,modalRename,modalShop,modalAchievements].forEach(m=>{m.addEventListener('click',(e)=>{if(e.target===m){m.classList.remove('active');if(m===modalGame){gameActive=false;gameLocked=false;}}});});
+
+      // ==================== ИНИЦИАЛИЗАЦИЯ ====================
+      if (!loadGame()) {
+          assignNewTask();
+      }
+      petNameDisplay.textContent = state.petName;
+      document.body.style.background = state.bgColor;
+      if (state.isDead) {
+          petEl.classList.add('dead-pet'); petEl.style.animation = 'none'; petCard.classList.add('dead');
+          allActionBtns.forEach(b => b.disabled = true); btnChangeBg.disabled = true; btnRename.disabled = true;
+          btnRestart.style.display = 'inline-block'; warningMsg.textContent = `💀 ${state.petName} ${currentLang === 'ru' ? 'умер' : 'died'}...`;
+          warningMsg.style.color = '#e94560'; setEmotion('');
+      } else {
+          setEmotion(state.emotion || 'neutral');
+      }
+      updateStatsUI(); updateCoinsUI(); updateCoinTimerUI(); updateScoreboard(); updateButtonsByStats();
+      applyAllVisuals(); updateBgButtons(); resetGame(); gameActive = false;
+      applyLanguage(); updateLevelPanel();
+      modalGame.classList.remove('active'); modalMath.classList.remove('active'); modalCasino.classList.remove('active');
+      modalAdmin.classList.remove('active'); modalRename.classList.remove('active'); modalShop.classList.remove('active');
+      modalAchievements.classList.remove('active');
+      startAllIntervals();
+      saveGame();
+      console.log('🐾 Тамагочи-ИИ готов! Баги исправлены!');
+  })();
+</script>
+</body>
+</html>
